@@ -6,225 +6,143 @@
   <title>핫딜 호텔 이미지 뚝딱이</title>
   <style>
     @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap');
-
     :root {
-      --primary: #FF6B35;
-      --primary-dark: #E55A25;
-      --primary-light: #FFF0EB;
-      --bg: #F5F6FA;
-      --card: #fff;
-      --text: #1A1A2E;
-      --muted: #6B7280;
-      --border: #E5E7EB;
+      --primary: #FF6B35; --primary-dark: #E55A25; --primary-light: #FFF0EB;
+      --bg: #F5F6FA; --text: #1A1A2E; --muted: #6B7280; --border: #E5E7EB;
     }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); }
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    /* ── Header ── */
-    header {
-      background: #fff; border-bottom: 1px solid var(--border);
-      position: sticky; top: 0; z-index: 200;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    /* Header */
+    header { background: #fff; border-bottom: 1px solid var(--border); box-shadow: 0 2px 8px rgba(0,0,0,.06); }
+    .hd { max-width: 1000px; margin: 0 auto; padding: 0 24px; height: 60px; display: flex; align-items: center; gap: 12px; }
+    .logo { font-size: 18px; font-weight: 800; color: var(--primary); white-space: nowrap; }
+
+    main { max-width: 1000px; margin: 0 auto; padding: 28px 24px; }
+
+    /* Upload Zone */
+    .upload-zone {
+      background: #fff; border-radius: 16px; border: 2.5px dashed var(--border);
+      padding: 56px 24px; text-align: center; cursor: pointer;
+      transition: all .2s; position: relative; margin-bottom: 20px;
     }
-    .header-inner {
-      max-width: 1100px; margin: 0 auto; padding: 0 24px;
-      height: 60px; display: flex; align-items: center; gap: 16px;
-    }
-    .logo { font-size: 20px; font-weight: 800; color: var(--primary); white-space: nowrap; }
+    .upload-zone:hover, .upload-zone.over { border-color: var(--primary); background: var(--primary-light); }
+    .upload-zone input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .upload-zone .up-icon { font-size: 56px; margin-bottom: 14px; }
+    .upload-zone h2 { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .upload-zone p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    .chips { display: flex; justify-content: center; gap: 8px; margin-top: 18px; flex-wrap: wrap; }
+    .chip { background: #fff; border: 1.5px solid var(--border); border-radius: 20px; padding: 5px 14px; font-size: 12px; font-weight: 600; color: var(--muted); }
 
-    /* ── Search Bar ── */
-    .search-wrap { flex: 1; display: flex; gap: 8px; }
-    .search-input {
-      flex: 1; border: 2px solid var(--border); border-radius: 10px;
-      padding: 10px 16px; font-family: inherit; font-size: 15px; outline: none;
-      transition: border-color .2s;
-    }
-    .search-input:focus { border-color: var(--primary); }
-    .search-input::placeholder { color: #B0B7C3; }
-    .search-btn {
-      background: var(--primary); color: #fff; border: none;
-      border-radius: 10px; padding: 10px 22px;
-      font-family: inherit; font-size: 14px; font-weight: 700;
-      cursor: pointer; white-space: nowrap; transition: background .2s;
-      display: flex; align-items: center; gap: 6px;
-    }
-    .search-btn:hover { background: var(--primary-dark); }
-    .search-btn:disabled { background: #D1D5DB; cursor: not-allowed; }
+    /* Crop Editor */
+    .crop-section { display: none; }
+    .crop-section.show { display: block; }
 
+    .crop-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,.08); overflow: hidden; margin-bottom: 20px; }
+    .crop-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; }
+    .crop-header h3 { font-size: 15px; font-weight: 700; }
+    .crop-hint { font-size: 12px; color: var(--muted); }
 
-    /* ── Main ── */
-    main { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
+    .crop-canvas-wrap { padding: 20px; display: flex; justify-content: center; background: #1a1a2e; }
+    #cropCanvas { display: block; cursor: grab; border-radius: 4px; max-width: 100%; }
+    #cropCanvas.dragging { cursor: grabbing; }
 
-    /* ── States ── */
-    .state-box {
-      background: #fff; border-radius: 16px; padding: 64px 24px;
-      text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-    }
-    .state-box .ico { font-size: 60px; margin-bottom: 16px; }
-    .state-box h3 { font-size: 18px; font-weight: 700; margin-bottom: 8px; }
-    .state-box p { font-size: 14px; color: var(--muted); line-height: 1.7; }
+    /* Size selector */
+    .size-bar { display: flex; gap: 8px; padding: 16px 20px; border-top: 1px solid var(--border); background: #FAFBFC; }
+    .size-tab { flex: 1; border: 2px solid var(--border); background: #fff; border-radius: 10px; padding: 10px; font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; color: var(--muted); transition: all .2s; text-align: center; }
+    .size-tab small { display: block; font-size: 11px; font-weight: 400; margin-top: 2px; }
+    .size-tab.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
 
-    /* Spinner */
-    .spinner-wrap { display: flex; flex-direction: column; align-items: center; gap: 14px; padding: 80px 0; }
-    .spinner {
-      width: 44px; height: 44px; border: 4px solid var(--border);
-      border-top-color: var(--primary); border-radius: 50%;
-      animation: spin .8s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Error */
-    .error-box {
-      background: #FFF0F0; border: 1px solid #FFC0C0; border-radius: 12px;
-      padding: 16px 20px; color: #C00000; font-size: 14px;
-      display: flex; align-items: center; gap: 10px; margin-bottom: 16px;
-    }
-
-    /* ── Results ── */
-    .results-meta {
-      font-size: 13px; color: var(--muted); margin-bottom: 16px;
-      display: flex; align-items: center; gap: 8px;
-    }
-    .results-meta strong { color: var(--text); }
-
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 14px;
-      margin-bottom: 28px;
-    }
-    @media (max-width: 900px) { .image-grid { grid-template-columns: repeat(4, 1fr); } }
-    @media (max-width: 640px) { .image-grid { grid-template-columns: repeat(3, 1fr); } }
-
-    .img-card {
-      background: #fff; border-radius: 12px; overflow: hidden;
-      border: 2.5px solid var(--border); cursor: pointer;
-      transition: all .2s; position: relative;
-    }
-    .img-card:hover { border-color: var(--primary); transform: translateY(-3px); box-shadow: 0 8px 24px rgba(255,107,53,.15); }
-    .img-card.selected { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255,107,53,.2); }
-
-    .img-card .check {
-      position: absolute; top: 8px; right: 8px; z-index: 2;
-      background: var(--primary); color: #fff; border-radius: 50%;
-      width: 26px; height: 26px; font-size: 14px;
-      display: none; align-items: center; justify-content: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,.2);
-    }
-    .img-card.selected .check { display: flex; }
-
-    .img-thumb {
-      width: 100%; aspect-ratio: 2/3; object-fit: cover;
-      display: block; background: #F3F4F6;
-    }
-    .img-fallback {
-      width: 100%; aspect-ratio: 2/3;
-      background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
-      display: flex; align-items: center; justify-content: center;
-      font-size: 30px; color: #9CA3AF;
-    }
-    .img-info { padding: 8px 10px; }
-    .img-source { font-size: 11px; color: var(--muted); margin-bottom: 3px; }
-    .img-title {
-      font-size: 11px; color: var(--text); line-height: 1.3;
-      overflow: hidden; display: -webkit-box;
-      -webkit-line-clamp: 2; -webkit-box-orient: vertical;
-    }
-
-    /* ── Download Panel ── */
-    .dl-panel {
-      background: #fff; border-radius: 16px;
-      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
-      overflow: hidden; display: none;
-    }
-    .dl-panel.show { display: block; }
-
-    .dl-inner { display: flex; gap: 0; }
-    @media (max-width: 680px) { .dl-inner { flex-direction: column; } }
-
-    /* Preview */
-    .dl-preview {
-      background: #F8F9FA; padding: 28px;
-      display: flex; flex-direction: column; align-items: center;
-      gap: 12px; flex-shrink: 0; border-right: 1px solid var(--border);
-    }
-    .dl-preview canvas { border-radius: 8px; border: 1px solid var(--border); display: block; }
-    .canvas-label { font-size: 11px; color: var(--muted); font-weight: 600; text-transform: uppercase; }
-
-    /* Info */
-    .dl-info { padding: 28px; flex: 1; }
-    .dl-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
-    .dl-sub { font-size: 13px; color: var(--muted); margin-bottom: 24px; line-height: 1.5; }
-
-    .dl-btns { display: flex; flex-direction: column; gap: 10px; }
+    /* Download panel */
+    .dl-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,.08); padding: 24px; }
+    .dl-card h3 { font-size: 16px; font-weight: 800; margin-bottom: 6px; }
+    .dl-card p { font-size: 13px; color: var(--muted); margin-bottom: 20px; }
+    .dl-row { display: flex; gap: 10px; flex-wrap: wrap; }
     .btn-pc {
-      background: var(--primary); color: #fff; border: none;
-      border-radius: 12px; padding: 14px 20px; font-family: inherit;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: space-between;
-      transition: background .2s;
+      flex: 1; min-width: 200px; background: var(--primary); color: #fff; border: none;
+      border-radius: 12px; padding: 14px 20px; font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background .2s;
     }
     .btn-pc:hover { background: var(--primary-dark); }
     .btn-mo {
-      background: var(--primary-light); color: var(--primary); border: none;
-      border-radius: 12px; padding: 14px 20px; font-family: inherit;
-      font-size: 14px; font-weight: 700; cursor: pointer;
-      display: flex; align-items: center; justify-content: space-between;
-      transition: background .2s;
+      flex: 1; min-width: 200px; background: var(--primary-light); color: var(--primary); border: none;
+      border-radius: 12px; padding: 14px 20px; font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center; justify-content: space-between; transition: background .2s;
     }
     .btn-mo:hover { background: #FFD6C8; }
-    .btn-both {
-      background: var(--bg); color: var(--text); border: 1.5px solid var(--border);
-      border-radius: 12px; padding: 12px 20px; font-family: inherit;
-      font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: all .2s; width: 100%; margin-top: 4px;
-    }
-    .btn-both:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .badge { font-size: 12px; opacity: .75; }
-
-    .btn-reset {
-      background: none; border: 1px solid var(--border); border-radius: 8px;
-      padding: 7px 14px; font-family: inherit; font-size: 12px;
-      color: var(--muted); cursor: pointer; margin-top: 12px; width: 100%;
-      transition: all .2s;
-    }
+    .btn-both { width: 100%; background: var(--bg); color: var(--text); border: 1.5px solid var(--border); border-radius: 12px; padding: 12px; font-family: inherit; font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: all .2s; }
+    .btn-both:hover { border-color: var(--primary); color: var(--primary); }
+    .badge { font-size: 11px; opacity: .75; }
+    .btn-reset { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-family: inherit; font-size: 12px; color: var(--muted); cursor: pointer; margin-top: 12px; transition: all .2s; }
     .btn-reset:hover { border-color: #EF4444; color: #EF4444; }
 
-    /* ── Toast ── */
-    .toast {
-      position: fixed; bottom: 24px; right: 24px; z-index: 9999;
-      background: #1A1A2E; color: #fff; border-radius: 10px;
-      padding: 12px 20px; font-size: 13px; font-weight: 500;
-      transform: translateY(80px); opacity: 0; transition: all .3s;
-    }
+    /* Toast */
+    .toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: #1A1A2E; color: #fff; border-radius: 10px; padding: 12px 20px; font-size: 13px; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all .3s; }
     .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* Info tips */
+    .tips { background: #F0F7FF; border: 1px solid #BFD9F7; border-radius: 12px; padding: 14px 16px; font-size: 13px; color: #374151; line-height: 1.7; margin-bottom: 20px; }
+    .tips strong { color: #1E40AF; }
   </style>
 </head>
 <body>
 
 <header>
-  <div class="header-inner">
+  <div class="hd">
     <div class="logo">🏨 핫딜 호텔 이미지 뚝딱이</div>
-
-    <div class="search-wrap">
-      <input class="search-input" id="searchInput" type="text"
-        placeholder="호텔 이름 검색  예: 롯데호텔 부산"
-        onkeydown="if(event.key==='Enter') doSearch()" />
-      <button class="search-btn" id="searchBtn" onclick="doSearch()">
-        <span id="btnIcon">🔍</span>
-        <span id="btnText">검색</span>
-      </button>
-    </div>
   </div>
 </header>
 
-<main id="main">
-  <!-- Initial state -->
-  <div class="state-box" id="stateEmpty">
-    <div class="ico">🏝️</div>
-    <h3>호텔 이름을 검색해보세요</h3>
-    <p>이미지를 클릭하면<br>PC(724×1086) / MO(480×720) 배너 규격으로 자동 크롭 & 다운로드</p>
+<main>
+  <div class="tips">
+    <strong>💡 사용법:</strong>
+    호텔 이미지를 직접 저장한 후 아래에 업로드하면 → PC(724×1086) / MO(480×720) 배너 규격으로 자동 크롭 &amp; 저장.<br>
+    크롭 영역은 <strong>드래그로 위치 조정</strong>할 수 있어요.
+  </div>
+
+  <!-- Upload Zone -->
+  <div class="upload-zone" id="uploadZone"
+    ondragover="e=>{e.preventDefault();document.getElementById('uploadZone').classList.add('over')}"
+    ondragleave="document.getElementById('uploadZone').classList.remove('over')"
+    ondrop="handleDrop(event)">
+    <input type="file" accept="image/*" onchange="handleFile(event.target.files[0])" />
+    <div class="up-icon">🖼️</div>
+    <h2>이미지를 여기에 올려주세요</h2>
+    <p>클릭하여 파일 선택 · 드래그 &amp; 드롭 · ⌘V 붙여넣기</p>
+    <div class="chips">
+      <span class="chip">📁 JPG / PNG / WEBP</span>
+      <span class="chip">📋 클립보드 붙여넣기</span>
+      <span class="chip">🖱️ 드래그 &amp; 드롭</span>
+    </div>
+  </div>
+
+  <!-- Crop Editor -->
+  <div class="crop-section" id="cropSection">
+    <div class="crop-card">
+      <div class="crop-header">
+        <h3>✂️ 크롭 영역 조정</h3>
+        <span class="crop-hint">주황색 영역을 드래그해서 위치를 조정하세요</span>
+      </div>
+      <div class="crop-canvas-wrap">
+        <canvas id="cropCanvas"></canvas>
+      </div>
+      <div class="size-bar">
+        <button class="size-tab active" id="tabPC" onclick="setPreviewSize('PC')">🖥️ PC 비율<small>724 × 1086</small></button>
+        <button class="size-tab" id="tabMO" onclick="setPreviewSize('MO')">📱 MO 비율<small>480 × 720</small></button>
+      </div>
+    </div>
+
+    <div class="dl-card">
+      <h3>⬇️ 다운로드</h3>
+      <p id="dlSub">이미지를 원하는 규격으로 저장하세요. 크롭 영역 기준으로 정확한 픽셀로 저장됩니다.</p>
+      <div class="dl-row">
+        <button class="btn-pc" onclick="doDownload('PC')">🖥️ PC 배너 저장 <span class="badge">724 × 1086 px</span></button>
+        <button class="btn-mo" onclick="doDownload('MO')">📱 MO 배너 저장 <span class="badge">480 × 720 px</span></button>
+      </div>
+      <button class="btn-both" onclick="doDownloadBoth()">⬇️ PC + MO 모두 저장</button>
+      <br>
+      <button class="btn-reset" onclick="resetAll()">✕ 다른 이미지 선택</button>
+    </div>
   </div>
 </main>
 
@@ -232,224 +150,251 @@
 
 <script>
 const SIZES = { PC: { w: 724, h: 1086 }, MO: { w: 480, h: 720 } };
-let results = [];
-let selectedIdx = null;
+const RATIO = { PC: 724 / 1086, MO: 480 / 720 }; // 둘 다 ≈ 2:3
 
-// ── Search ───────────────────────────────────────────
-async function doSearch() {
-  const q = document.getElementById('searchInput').value.trim();
-  if (!q) { toast('호텔 이름을 입력하세요'); return; }
+let img = null;          // 원본 Image 객체
+let fileName = '호텔';
+let previewSize = 'PC';  // 현재 미리보기 비율
 
-  setBtnLoading(true);
-  setMain(`<div class="spinner-wrap"><div class="spinner"></div><p style="font-size:14px;color:var(--muted);">이미지 검색 중...</p></div>`);
+// 크롭 상태 (이미지 좌표)
+let crop = { x: 0, y: 0, w: 0, h: 0 };
 
-  try {
-    results = await searchImages(q);
-    if (results.length === 0) throw new Error('검색 결과가 없습니다. 다른 이름으로 시도해보세요.');
-    renderResults(q);
-  } catch(e) {
-    setMain(`<div class="error-box">❌ ${e.message}</div>`);
-  } finally {
-    setBtnLoading(false);
+// 드래그 상태
+let drag = { on: false, sx: 0, sy: 0, cx: 0, cy: 0 };
+
+// 디스플레이 스케일
+let dScale = 1;
+
+const canvas = document.getElementById('cropCanvas');
+const ctx = canvas.getContext('2d');
+
+// ── 파일 로드 ────────────────────────────────────────
+function handleDrop(e) {
+  e.preventDefault();
+  document.getElementById('uploadZone').classList.remove('over');
+  const file = e.dataTransfer.files[0] || extractImgFromDrop(e);
+  if (file) handleFile(file);
+}
+
+function extractImgFromDrop(e) {
+  const html = e.dataTransfer.getData('text/html');
+  const url  = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+  if (html) {
+    const m = html.match(/src=["']([^"']+)["']/);
+    if (m) { loadFromURL(m[1]); return null; }
   }
+  if (url && url.startsWith('http')) { loadFromURL(url); return null; }
+  return null;
 }
 
-// ── Google Image Search (CORS proxy) ────────────────
-async function searchImages(query) {
-  const proxy = url => `https://corsproxy.io/?${encodeURIComponent(url)}`;
-
-  // Google Images 우선
-  try {
-    const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query + ' 호텔')}&tbm=isch&hl=ko`;
-    const html = await fetch(proxy(googleUrl)).then(r => {
-      if (!r.ok) throw new Error('fetch failed');
-      return r.text();
-    });
-    const items = parseGoogleImages(html);
-    if (items.length >= 3) return items.slice(0, 15);
-  } catch {}
-
-  // Fallback: DuckDuckGo (필터 없음)
-  const q = `${query} hotel`;
-  const initHtml = await fetch(proxy(`https://duckduckgo.com/?q=${encodeURIComponent(q)}&iax=images&ia=images`))
-    .then(r => r.text());
-  const vqdMatch = initHtml.match(/vqd=['"]?([0-9-]+)['"]?/);
-  if (!vqdMatch) throw new Error('검색을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
-  const imgJson = await fetch(
-    proxy(`https://duckduckgo.com/i.js?q=${encodeURIComponent(q)}&o=json&vqd=${vqdMatch[1]}&f=,,,,,&p=1&s=0`)
-  ).then(r => r.json());
-  const ddgItems = (imgJson.results || []).map(r => ({
-    url: r.image, thumb: r.thumbnail,
-    w: r.width, h: r.height, title: r.title,
-    source: (() => { try { return new URL(r.url).hostname.replace('www.',''); } catch { return ''; }})()
-  }));
-  const ddgHq = ddgItems.filter(r => Math.min(r.w, r.h) >= 800);
-  return (ddgHq.length >= 5 ? ddgHq : ddgItems.filter(r => Math.min(r.w, r.h) >= 500)).slice(0, 15);
+function handleFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  fileName = file.name.replace(/\.[^.]+$/, '');
+  const reader = new FileReader();
+  reader.onload = e => loadImage(e.target.result);
+  reader.readAsDataURL(file);
 }
 
-function parseGoogleImages(html) {
-  const un = s => s.replace(/\\u[\dA-Fa-f]{4}/g, m => String.fromCharCode(parseInt(m.slice(2), 16)));
-  const all = re => [...html.matchAll(re)].map(m => un(m[1]));
-
-  const ouUrls = all(/"ou":"([^"]+)"/g);
-  const tuUrls = all(/"tu":"([^"]+)"/g);
-  const owVals = [...html.matchAll(/"ow":(\d+)/g)].map(m => +m[1]);
-  const ohVals = [...html.matchAll(/"oh":(\d+)/g)].map(m => +m[1]);
-  const stVals = all(/"st":"([^"]+)"/g);
-  const ptVals = all(/"pt":"([^"]+)"/g);
-
-  const all_items = ouUrls
-    .map((url, i) => ({
-      url, thumb: tuUrls[i] || url,
-      w: owVals[i] || 0, h: ohVals[i] || 0,
-      source: stVals[i] || '', title: ptVals[i] || '',
-    }))
-    .filter(item => item.url.startsWith('http'));
-
-  // 화질 필터: 단변 800px 이상 우선, 부족하면 500px 이상으로 완화
-  const hq = all_items.filter(r => Math.min(r.w, r.h) >= 800);
-  return (hq.length >= 5 ? hq : all_items.filter(r => Math.min(r.w, r.h) >= 500));
+function loadFromURL(url) {
+  const i = new Image();
+  i.crossOrigin = 'anonymous';
+  i.onload = () => { img = i; fileName = '호텔이미지'; initCrop(); showEditor(); };
+  i.onerror = () => toast('❌ 이미지 로드 실패');
+  i.src = url;
 }
 
-// ── weserv.nl: 서버사이드 리사이즈/크롭 ─────────────
-// canvas 없이 서버에서 직접 고화질 크롭 후 반환
-function weservUrl(imageUrl, w, h) {
-  const base = imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl;
-  return `https://images.weserv.nl/?url=${encodeURIComponent(base)}&w=${w}&h=${h}&fit=cover&output=jpg&q=95`;
+function loadImage(src) {
+  const i = new Image();
+  i.onload = () => { img = i; initCrop(); showEditor(); };
+  i.src = src;
 }
 
-// ── Render Results ────────────────────────────────────
-function renderResults(query) {
-  let html = `
-    <div class="results-meta">
-      <strong>"${query}"</strong> 검색 결과 ${results.length}장
-    </div>
-    <div class="image-grid" id="grid">`;
+// 클립보드 붙여넣기
+document.addEventListener('paste', e => {
+  const items = e.clipboardData?.items || [];
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      handleFile(item.getAsFile());
+      return;
+    }
+  }
+});
 
-  results.forEach((r, i) => {
-    // 썸네일도 weserv로 통일 (로딩 안정성)
-    const thumbSrc = weservUrl(r.url, 300, 450);
-    html += `
-      <div class="img-card" id="card${i}" onclick="selectImage(${i})">
-        <div class="check">✓</div>
-        <img class="img-thumb" src="${thumbSrc}" alt="${r.title}"
-          onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-          loading="lazy" />
-        <div class="img-fallback" style="display:none;">🏨</div>
-        <div class="img-info">
-          <div class="img-source">${r.source}</div>
-          <div class="img-title">${r.title}</div>
-        </div>
-      </div>`;
+// ── 크롭 초기화 ──────────────────────────────────────
+function initCrop() {
+  const r = RATIO[previewSize];
+  if (img.width / img.height > r) {
+    crop.h = img.height;
+    crop.w = img.height * r;
+  } else {
+    crop.w = img.width;
+    crop.h = img.width / r;
+  }
+  crop.x = (img.width  - crop.w) / 2;
+  crop.y = (img.height - crop.h) / 2;
+}
+
+function showEditor() {
+  document.getElementById('uploadZone').style.display = 'none';
+  document.getElementById('cropSection').classList.add('show');
+  document.getElementById('dlSub').textContent =
+    `원본 ${img.width} × ${img.height}px → 크롭 후 PC(724×1086) / MO(480×720) 로 저장`;
+  drawEditor();
+}
+
+// ── 에디터 그리기 ─────────────────────────────────────
+function drawEditor() {
+  if (!img) return;
+
+  const maxW = Math.min(document.querySelector('.crop-canvas-wrap').clientWidth - 40, 820);
+  const maxH = 520;
+  dScale = Math.min(maxW / img.width, maxH / img.height, 1); // 축소만, 확대 안 함
+
+  canvas.width  = Math.round(img.width  * dScale);
+  canvas.height = Math.round(img.height * dScale);
+
+  // 원본 이미지
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  // 어두운 오버레이
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  // 크롭 영역 밝게 (원본 재드로우)
+  const dx = crop.x * dScale, dy = crop.y * dScale;
+  const dw = crop.w * dScale, dh = crop.h * dScale;
+  ctx.drawImage(img, crop.x, crop.y, crop.w, crop.h, dx, dy, dw, dh);
+
+  // 크롭 테두리
+  ctx.strokeStyle = '#FF6B35';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(dx, dy, dw, dh);
+
+  // 3분할 가이드라인
+  ctx.strokeStyle = 'rgba(255,255,255,0.25)';
+  ctx.lineWidth = 1;
+  for (let i = 1; i <= 2; i++) {
+    line(dx + dw*i/3, dy, dx + dw*i/3, dy+dh);
+    line(dx, dy + dh*i/3, dx+dw, dy + dh*i/3);
+  }
+
+  // 모서리 핸들
+  ctx.fillStyle = '#FF6B35';
+  [[dx,dy],[dx+dw,dy],[dx,dy+dh],[dx+dw,dy+dh]].forEach(([x,y]) => {
+    ctx.beginPath(); ctx.arc(x, y, 5, 0, Math.PI*2); ctx.fill();
   });
 
-  html += `</div><div class="dl-panel" id="dlPanel"></div>`;
-  setMain(html);
+  // 라벨
+  ctx.fillStyle = 'rgba(255,107,53,0.9)';
+  ctx.fillRect(dx, dy - 22, 130, 20);
+  ctx.fillStyle = '#fff';
+  ctx.font = 'bold 11px sans-serif';
+  ctx.textAlign = 'left';
+  ctx.fillText(`  ${previewSize === 'PC' ? '724×1086' : '480×720'} 비율  ·  드래그로 이동`, dx+4, dy - 7);
 }
 
-// ── Select Image ──────────────────────────────────────
-function selectImage(idx) {
-  document.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById(`card${idx}`)?.classList.add('selected');
-  selectedIdx = idx;
-  renderDownloadPanel(results[idx]);
-  document.getElementById('dlPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+function line(x1,y1,x2,y2){ ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke(); }
+
+// ── 드래그 ────────────────────────────────────────────
+canvas.addEventListener('mousedown', e => {
+  const {mx, my} = getMouse(e);
+  if (inCrop(mx, my)) {
+    drag = { on: true, sx: mx, sy: my, cx: crop.x, cy: crop.y };
+    canvas.classList.add('dragging');
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  const {mx, my} = getMouse(e);
+  canvas.style.cursor = inCrop(mx, my) ? 'grab' : 'default';
+  if (!drag.on) return;
+  canvas.style.cursor = 'grabbing';
+  crop.x = clamp(drag.cx + (mx - drag.sx), 0, img.width  - crop.w);
+  crop.y = clamp(drag.cy + (my - drag.sy), 0, img.height - crop.h);
+  drawEditor();
+});
+canvas.addEventListener('mouseup',    () => { drag.on = false; canvas.classList.remove('dragging'); });
+canvas.addEventListener('mouseleave', () => { drag.on = false; canvas.classList.remove('dragging'); });
+
+// 터치
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault();
+  const t = e.touches[0];
+  const {mx, my} = getTouch(t);
+  if (inCrop(mx, my)) drag = { on: true, sx: mx, sy: my, cx: crop.x, cy: crop.y };
+}, {passive: false});
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault();
+  if (!drag.on) return;
+  const {mx, my} = getTouch(e.touches[0]);
+  crop.x = clamp(drag.cx + (mx - drag.sx), 0, img.width  - crop.w);
+  crop.y = clamp(drag.cy + (my - drag.sy), 0, img.height - crop.h);
+  drawEditor();
+}, {passive: false});
+canvas.addEventListener('touchend', () => { drag.on = false; });
+
+function getMouse(e) {
+  const r = canvas.getBoundingClientRect();
+  return { mx: (e.clientX - r.left) / dScale, my: (e.clientY - r.top) / dScale };
+}
+function getTouch(t) {
+  const r = canvas.getBoundingClientRect();
+  return { mx: (t.clientX - r.left) / dScale, my: (t.clientY - r.top) / dScale };
+}
+function inCrop(mx, my) {
+  return mx >= crop.x && mx <= crop.x + crop.w && my >= crop.y && my <= crop.y + crop.h;
+}
+function clamp(v, min, max) { return Math.max(min, Math.min(max, v)); }
+
+// ── 비율 전환 ─────────────────────────────────────────
+function setPreviewSize(s) {
+  previewSize = s;
+  document.getElementById('tabPC').classList.toggle('active', s === 'PC');
+  document.getElementById('tabMO').classList.toggle('active', s === 'MO');
+  if (img) { initCrop(); drawEditor(); }
 }
 
-function renderDownloadPanel(item) {
-  const panel = document.getElementById('dlPanel');
-  const pw = 186, ph = 280; // PC 비율 미리보기
-  const previewUrl = weservUrl(item.url, pw * 2, ph * 2); // 2x for retina
-
-  panel.className = 'dl-panel show';
-  panel.innerHTML = `
-    <div class="dl-inner">
-      <div class="dl-preview">
-        <div class="canvas-label">PC 배너 미리보기 (크롭)</div>
-        <img id="previewImg"
-          src="${previewUrl}"
-          width="${pw}" height="${ph}"
-          style="border-radius:8px;border:1px solid var(--border);display:block;"
-          onerror="this.alt='미리보기 실패'" />
-      </div>
-      <div class="dl-info">
-        <div class="dl-title">다운로드</div>
-        <div class="dl-sub">${item.source ? item.source + ' · ' : ''}원본 ${item.w}×${item.h} → 서버에서 직접 크롭 (고화질)</div>
-        <div class="dl-btns">
-          <button class="btn-pc" id="btnDlPC" onclick="doDownload('PC')">
-            🖥️ PC 배너 저장 <span class="badge">724 × 1086</span>
-          </button>
-          <button class="btn-mo" id="btnDlMO" onclick="doDownload('MO')">
-            📱 MO 배너 저장 <span class="badge">480 × 720</span>
-          </button>
-          <button class="btn-both" onclick="downloadBoth()">⬇️ PC + MO 모두 저장</button>
-        </div>
-        <button class="btn-reset" onclick="deselect()">✕ 다른 이미지 선택</button>
-      </div>
-    </div>`;
-}
-
-// ── Download (canvas 없음 — weserv 서버 크롭) ────────
-async function doDownload(size) {
-  if (selectedIdx === null) return;
-  const item = results[selectedIdx];
+// ── 다운로드 ──────────────────────────────────────────
+function doDownload(size) {
+  if (!img) return;
   const { w, h } = SIZES[size];
-  const btn = document.getElementById(size === 'PC' ? 'btnDlPC' : 'btnDlMO');
-  if (btn) { btn.disabled = true; btn.textContent = '다운로드 중...'; }
-
-  try {
-    const url = weservUrl(item.url, w, h);
-    const res = await fetch(url);
-    if (!res.ok) throw new Error('fetch failed');
-    const blob = await res.blob();
-    const hotelName = document.getElementById('searchInput').value.replace(/\s+/g, '_') || '호텔';
+  const c = document.createElement('canvas');
+  c.width = w; c.height = h;
+  const x = c.getContext('2d');
+  x.imageSmoothingEnabled = true;
+  x.imageSmoothingQuality = 'high';
+  x.drawImage(img, crop.x, crop.y, crop.w, crop.h, 0, 0, w, h);
+  c.toBlob(blob => {
     const a = Object.assign(document.createElement('a'), {
       href: URL.createObjectURL(blob),
-      download: `${hotelName}_${size}_${w}x${h}.jpg`
+      download: `${fileName}_${size}_${w}x${h}.jpg`
     });
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
-    toast(`✅ ${size === 'PC' ? 'PC (724×1086)' : 'MO (480×720)'} 저장 완료!`);
-  } catch {
-    toast('❌ 다운로드 실패. 다른 이미지를 선택해주세요.');
-  } finally {
-    if (btn) {
-      btn.disabled = false;
-      btn.innerHTML = size === 'PC'
-        ? '🖥️ PC 배너 저장 <span class="badge">724 × 1086</span>'
-        : '📱 MO 배너 저장 <span class="badge">480 × 720</span>';
-    }
-  }
+    toast(`✅ ${size} (${w}×${h}) 저장 완료!`);
+  }, 'image/jpeg', 0.95);
 }
 
-async function downloadBoth() {
-  await doDownload('PC');
-  await new Promise(r => setTimeout(r, 500));
-  await doDownload('MO');
+async function doDownloadBoth() {
+  doDownload('PC');
+  await new Promise(r => setTimeout(r, 300));
+  doDownload('MO');
 }
 
-function deselect() {
-  document.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
-  selectedIdx = null;
-  const panel = document.getElementById('dlPanel');
-  if (panel) { panel.classList.remove('show'); panel.innerHTML = ''; }
+function resetAll() {
+  img = null; crop = {x:0,y:0,w:0,h:0};
+  document.getElementById('uploadZone').style.display = '';
+  document.getElementById('cropSection').classList.remove('show');
 }
 
-// ── UI Helpers ────────────────────────────────────────
-function setMain(html) { document.getElementById('main').innerHTML = html; }
-function setBtnLoading(on) {
-  document.getElementById('searchBtn').disabled = on;
-  document.getElementById('btnIcon').textContent = on ? '' : '🔍';
-  document.getElementById('btnText').textContent = on ? '검색 중...' : '검색';
-}
-
-let _toastT;
+// ── Toast ─────────────────────────────────────────────
+let _t;
 function toast(msg) {
   const el = document.getElementById('toast');
   el.textContent = msg; el.classList.add('show');
-  clearTimeout(_toastT);
-  _toastT = setTimeout(() => el.classList.remove('show'), 3000);
+  clearTimeout(_t); _t = setTimeout(() => el.classList.remove('show'), 3000);
 }
+
+window.addEventListener('resize', () => { if (img) drawEditor(); });
 </script>
 </body>
 </html>
