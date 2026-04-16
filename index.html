@@ -353,16 +353,11 @@ async function selectImage(idx) {
   panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   try {
+    // 반드시 원본(고해상도) URL로 로드 — 썸네일 fallback 없음
     selectedBitmap = await loadImageForCanvas(item.url);
     renderDownloadPanel(item);
   } catch {
-    // Fallback: try thumbnail
-    try {
-      selectedBitmap = await loadImageForCanvas(item.thumb);
-      renderDownloadPanel(item);
-    } catch {
-      panel.innerHTML = `<div class="error-box" style="margin:16px;">❌ 이미지를 불러올 수 없습니다. 다른 이미지를 선택해주세요.</div>`;
-    }
+    panel.innerHTML = `<div class="error-box" style="margin:16px;">❌ 이 이미지는 불러올 수 없습니다 (사이트 차단). 다른 이미지를 선택해주세요.</div>`;
   }
 }
 
@@ -466,21 +461,32 @@ function drawCover(ctx, src, w, h) {
   ctx.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
 }
 
-// ── Image Loader (CORS-safe) ──────────────────────────
-function loadImageForCanvas(url) {
-  const attempts = [
-    // 1. Direct with CORS header
-    () => loadImg(url, true),
-    // 2. corsproxy.io
-    () => loadImg(`https://corsproxy.io/?${encodeURIComponent(url)}`, true),
-    // 3. allorigins fallback
-    () => loadImg(`https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`, true),
+// ── Image Loader (원본 고화질, blob 방식) ────────────
+async function loadImageForCanvas(originalUrl) {
+  // proxy로 fetch → blob URL → img 로드
+  // blob URL은 same-origin 취급이라 canvas에 taint 없이 그려짐
+  const proxies = [
+    `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`,
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`,
   ];
 
-  return attempts.reduce(
-    (chain, fn) => chain.catch(() => fn()),
-    Promise.reject()
-  );
+  for (const proxyUrl of proxies) {
+    try {
+      const res = await fetch(proxyUrl);
+      if (!res.ok) continue;
+      const blob = await res.blob();
+      if (!blob.type.startsWith('image/')) continue;
+      const blobUrl = URL.createObjectURL(blob);
+      const img = await loadImg(blobUrl);
+      URL.revokeObjectURL(blobUrl);
+      return img;
+    } catch {}
+  }
+
+  // 최후 수단: crossOrigin 직접 로드
+  try { return await loadImg(originalUrl, true); } catch {}
+
+  throw new Error('이미지를 불러올 수 없습니다');
 }
 
 function loadImg(src, cors = false) {
