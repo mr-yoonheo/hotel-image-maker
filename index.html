@@ -21,1091 +21,720 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
-    body {
-      font-family: 'Noto Sans KR', sans-serif;
-      background: var(--bg);
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    /* ── Header ── */
+    /* Header */
     header {
       background: white;
       border-bottom: 1px solid var(--border);
       padding: 0 24px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
+      position: sticky; top: 0; z-index: 100;
       box-shadow: 0 2px 8px rgba(0,0,0,0.06);
     }
     .header-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      height: 64px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      max-width: 900px; margin: 0 auto;
+      height: 64px; display: flex; align-items: center;
     }
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-size: 20px;
-      font-weight: 800;
-      color: var(--primary);
-    }
-    .logo .emoji { font-size: 26px; }
-    .logo .sub { font-size: 12px; font-weight: 400; color: var(--text-secondary); margin-top: 2px; }
+    .logo { display: flex; align-items: center; gap: 10px; }
+    .logo .title { font-size: 20px; font-weight: 800; color: var(--primary); }
+    .logo .sub { font-size: 12px; color: var(--text-secondary); margin-top: 2px; }
 
-    .settings-btn {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 8px 14px;
-      cursor: pointer;
-      font-family: inherit;
-      font-size: 13px;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-    .settings-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    /* Main */
+    main { max-width: 900px; margin: 0 auto; padding: 32px 24px; }
 
-    /* ── Main ── */
-    main { max-width: 1100px; margin: 0 auto; padding: 32px 24px; }
-
-    /* ── API Notice ── */
-    .api-notice {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: var(--radius);
-      padding: 20px 24px;
-      color: white;
-      margin-bottom: 24px;
-      display: none;
+    /* Step Cards */
+    .step-card {
+      background: white; border-radius: var(--radius);
+      padding: 28px; box-shadow: var(--shadow); margin-bottom: 20px;
     }
-    .api-notice.show { display: flex; align-items: center; gap: 16px; }
-    .api-notice .notice-icon { font-size: 32px; flex-shrink: 0; }
-    .api-notice .notice-text h3 { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
-    .api-notice .notice-text p { font-size: 13px; opacity: 0.85; line-height: 1.5; }
-    .api-notice .notice-btn {
-      background: white;
-      color: #764ba2;
-      border: none;
-      border-radius: 8px;
-      padding: 8px 18px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 700;
-      cursor: pointer;
-      flex-shrink: 0;
-      white-space: nowrap;
+    .step-label {
+      display: flex; align-items: center; gap: 10px;
+      font-size: 13px; font-weight: 700; color: var(--text-secondary);
+      margin-bottom: 16px; text-transform: uppercase; letter-spacing: 0.5px;
+    }
+    .step-num {
+      background: var(--primary); color: white;
+      border-radius: 50%; width: 22px; height: 22px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 800; flex-shrink: 0;
     }
 
-    /* ── Search Card ── */
-    .search-card {
-      background: white;
-      border-radius: var(--radius);
-      padding: 28px;
-      box-shadow: var(--shadow);
-      margin-bottom: 24px;
-    }
-    .search-label {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-secondary);
-      margin-bottom: 12px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .search-row {
-      display: flex;
-      gap: 12px;
-    }
+    /* Search Row */
+    .search-row { display: flex; gap: 10px; margin-bottom: 14px; }
     .search-input {
-      flex: 1;
-      border: 2px solid var(--border);
-      border-radius: 12px;
-      padding: 14px 18px;
-      font-family: inherit;
-      font-size: 16px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
+      flex: 1; border: 2px solid var(--border); border-radius: 12px;
+      padding: 13px 16px; font-family: inherit; font-size: 15px;
+      color: var(--text); outline: none; transition: border-color 0.2s;
     }
     .search-input:focus { border-color: var(--primary); }
     .search-input::placeholder { color: #B0B7C3; }
-    .search-btn {
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      padding: 14px 28px;
-      font-family: inherit;
-      font-size: 15px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s;
-      white-space: nowrap;
-      display: flex;
-      align-items: center;
-      gap: 8px;
+
+    /* Quick Search Buttons */
+    .quick-btns { display: flex; flex-wrap: wrap; gap: 8px; }
+    .quick-btn {
+      border: 1.5px solid var(--border); background: white;
+      border-radius: 20px; padding: 7px 14px;
+      font-family: inherit; font-size: 13px; font-weight: 600;
+      cursor: pointer; color: var(--text); transition: all 0.2s;
+      display: flex; align-items: center; gap: 5px;
+      text-decoration: none;
     }
-    .search-btn:hover { background: var(--primary-dark); }
-    .search-btn:disabled { background: #D1D5DB; cursor: not-allowed; }
+    .quick-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .quick-btn .dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
 
     /* Size Toggle */
-    .size-toggle {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-    }
+    .size-toggle { display: flex; gap: 10px; }
     .size-btn {
-      border: 2px solid var(--border);
-      background: white;
-      border-radius: 10px;
-      padding: 8px 16px;
-      font-family: inherit;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      color: var(--text-secondary);
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      flex: 1; border: 2px solid var(--border); background: white;
+      border-radius: 12px; padding: 12px 16px;
+      font-family: inherit; cursor: pointer; transition: all 0.2s;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
     }
-    .size-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .size-badge {
-      background: var(--bg);
-      border-radius: 5px;
-      padding: 2px 6px;
-      font-size: 11px;
-      font-weight: 500;
-    }
-    .size-btn.active .size-badge { background: #FFD6C8; }
+    .size-btn.active { border-color: var(--primary); background: var(--primary-light); }
+    .size-btn .size-icon { font-size: 22px; }
+    .size-btn .size-name { font-size: 13px; font-weight: 700; color: var(--text); }
+    .size-btn.active .size-name { color: var(--primary); }
+    .size-btn .size-dim { font-size: 11px; color: var(--text-secondary); }
 
-    /* ── Loading ── */
-    .loading-state {
-      display: none;
-      text-align: center;
-      padding: 60px 20px;
+    /* Drop Zone */
+    .drop-zone {
+      border: 2.5px dashed var(--border); border-radius: 16px;
+      padding: 48px 24px; text-align: center;
+      cursor: pointer; transition: all 0.2s; position: relative;
+      background: #FAFBFC;
     }
-    .loading-state.show { display: block; }
-    .spinner {
-      width: 48px;
-      height: 48px;
-      border: 4px solid var(--border);
-      border-top-color: var(--primary);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--primary); background: var(--primary-light);
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    .loading-state p { color: var(--text-secondary); font-size: 15px; }
-
-    /* ── Empty State ── */
-    .empty-state {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--text-secondary);
+    .drop-zone.dragover { transform: scale(1.01); }
+    .drop-zone input[type=file] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
     }
-    .empty-state .emoji { font-size: 64px; margin-bottom: 16px; }
-    .empty-state h3 { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 8px; }
-    .empty-state p { font-size: 14px; line-height: 1.6; }
-
-    /* ── Error ── */
-    .error-state {
-      display: none;
-      background: #FFF0F0;
-      border: 1px solid #FFC0C0;
-      border-radius: 12px;
-      padding: 16px 20px;
-      color: #C00000;
-      font-size: 14px;
-      margin-bottom: 20px;
-      align-items: flex-start;
-      gap: 10px;
+    .drop-icon { font-size: 52px; margin-bottom: 12px; }
+    .drop-title { font-size: 18px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+    .drop-sub { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .drop-methods {
+      display: flex; justify-content: center; gap: 10px;
+      margin-top: 20px; flex-wrap: wrap;
     }
-    .error-state.show { display: flex; }
-
-    /* ── Results Section ── */
-    .results-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 16px;
-    }
-    .results-title {
-      font-size: 16px;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    .results-count {
-      background: var(--primary);
-      color: white;
-      border-radius: 20px;
-      padding: 2px 10px;
-      font-size: 12px;
-      font-weight: 700;
+    .method-chip {
+      background: white; border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: 12px; font-weight: 600; color: var(--text-secondary);
+      display: flex; align-items: center; gap: 5px;
     }
 
-    /* ── Image Grid ── */
-    .image-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
+    /* URL Input */
+    .url-row {
+      display: flex; gap: 8px; margin-top: 16px;
     }
-    @media (max-width: 900px) { .image-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 600px) { .image-grid { grid-template-columns: repeat(2, 1fr); } }
+    .url-input {
+      flex: 1; border: 2px solid var(--border); border-radius: 10px;
+      padding: 10px 14px; font-family: inherit; font-size: 13px;
+      color: var(--text); outline: none; transition: border-color 0.2s;
+    }
+    .url-input:focus { border-color: var(--primary); }
+    .url-input::placeholder { color: #B0B7C3; }
+    .url-submit-btn {
+      background: var(--primary); color: white; border: none;
+      border-radius: 10px; padding: 10px 18px;
+      font-family: inherit; font-size: 13px; font-weight: 700;
+      cursor: pointer; white-space: nowrap; transition: background 0.2s;
+    }
+    .url-submit-btn:hover { background: var(--primary-dark); }
 
-    .image-card {
-      background: white;
-      border-radius: 12px;
-      overflow: hidden;
-      border: 2px solid var(--border);
-      cursor: pointer;
-      transition: all 0.2s;
-      position: relative;
+    /* Preview & Download */
+    .preview-section { display: none; }
+    .preview-section.show { display: block; }
+    .preview-inner {
+      display: grid; grid-template-columns: auto 1fr; gap: 32px; align-items: start;
     }
-    .image-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(255,107,53,0.15); }
-    .image-card.selected { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(255,107,53,0.2); }
+    @media (max-width: 600px) { .preview-inner { grid-template-columns: 1fr; } }
 
-    .image-card .check-badge {
-      display: none;
-      position: absolute;
-      top: 8px;
-      right: 8px;
-      background: var(--primary);
-      color: white;
-      border-radius: 50%;
-      width: 26px;
-      height: 26px;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      z-index: 2;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    .preview-wrap {
+      position: relative; border-radius: 12px; overflow: hidden;
+      border: 2px solid var(--border); flex-shrink: 0;
     }
-    .image-card.selected .check-badge { display: flex; }
+    #previewCanvas { display: block; }
 
-    .card-thumb {
-      width: 100%;
-      aspect-ratio: 2/3;
-      object-fit: cover;
-      display: block;
-      background: #F3F4F6;
-    }
-    .card-thumb-placeholder {
-      width: 100%;
-      aspect-ratio: 2/3;
-      background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      color: #9CA3AF;
-    }
+    .preview-info .info-title { font-size: 20px; font-weight: 800; margin-bottom: 8px; }
+    .preview-info .info-sub { font-size: 13px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; }
 
-    .card-info {
-      padding: 10px 12px;
+    /* Crop Hint */
+    .crop-hint {
+      background: #F0F7FF; border: 1px solid #BFD9F7;
+      border-radius: 10px; padding: 12px 14px;
+      font-size: 12px; color: #374151; margin-bottom: 20px; line-height: 1.5;
     }
-    .card-source {
-      font-size: 11px;
-      color: var(--text-secondary);
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      margin-bottom: 4px;
-    }
-    .source-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #10B981;
-      flex-shrink: 0;
-    }
-    .card-title {
-      font-size: 12px;
-      font-weight: 500;
-      color: var(--text);
-      line-height: 1.3;
-      overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-    .card-dims {
-      font-size: 10px;
-      color: #9CA3AF;
-      margin-top: 4px;
-    }
+    .crop-hint strong { color: #1E40AF; }
 
-    /* ── Download Panel ── */
-    .download-panel {
-      background: white;
-      border-radius: var(--radius);
-      padding: 28px;
-      box-shadow: var(--shadow);
-      display: none;
-    }
-    .download-panel.show { display: block; }
-    .download-panel-inner {
-      display: grid;
-      grid-template-columns: auto 1fr;
-      gap: 32px;
-      align-items: start;
-    }
-    @media (max-width: 700px) { .download-panel-inner { grid-template-columns: 1fr; } }
-
-    .preview-area {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      align-items: center;
-    }
-    .preview-canvas-wrap {
-      position: relative;
-      overflow: hidden;
-      border-radius: 10px;
-      border: 2px solid var(--border);
-    }
-    .preview-canvas {
-      display: block;
-    }
-
-    .download-info { flex: 1; }
-    .download-title {
-      font-size: 18px;
-      font-weight: 800;
-      margin-bottom: 6px;
-    }
-    .download-sub {
-      font-size: 13px;
-      color: var(--text-secondary);
-      margin-bottom: 24px;
-      line-height: 1.5;
-    }
-
-    .download-btns {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
+    /* Download Buttons */
+    .dl-btns { display: flex; flex-direction: column; gap: 10px; }
     .dl-btn {
-      border: none;
-      border-radius: 12px;
-      padding: 14px 20px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.2s;
+      border: none; border-radius: 12px; padding: 14px 20px;
+      font-family: inherit; font-size: 14px; font-weight: 700;
+      cursor: pointer; display: flex; align-items: center;
+      justify-content: space-between; transition: all 0.2s;
     }
     .dl-btn-pc { background: var(--primary); color: white; }
     .dl-btn-pc:hover { background: var(--primary-dark); }
     .dl-btn-mo { background: var(--primary-light); color: var(--primary); }
     .dl-btn-mo:hover { background: #FFD6C8; }
-    .dl-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-    .dl-size-badge {
-      font-size: 12px;
-      font-weight: 500;
-      opacity: 0.8;
+    .dl-btn-both {
+      background: var(--bg); color: var(--text);
+      border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 12px 20px; font-family: inherit; font-size: 13px;
+      font-weight: 600; cursor: pointer; text-align: center;
+      transition: all 0.2s; margin-top: 4px;
     }
-    .dl-both-btn {
-      background: var(--bg);
-      color: var(--text);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 12px 20px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      transition: all 0.2s;
-      width: 100%;
-      margin-top: 8px;
-    }
-    .dl-both-btn:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
+    .dl-btn-both:hover { border-color: var(--primary); color: var(--primary); }
+    .dl-size-badge { font-size: 12px; opacity: 0.75; }
 
-    .deselect-btn {
-      background: none;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 7px 14px;
-      font-family: inherit;
-      font-size: 12px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 16px;
-      width: 100%;
+    .reset-btn {
+      background: none; border: 1px solid var(--border);
+      border-radius: 8px; padding: 7px 14px;
+      font-family: inherit; font-size: 12px; color: var(--text-secondary);
+      cursor: pointer; margin-top: 12px; width: 100%; transition: all 0.2s;
     }
-    .deselect-btn:hover { border-color: #EF4444; color: #EF4444; }
+    .reset-btn:hover { border-color: #EF4444; color: #EF4444; }
 
-    /* ── Modal ── */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(0,0,0,0.5);
-      z-index: 1000;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
+    /* Loading */
+    .loading-overlay {
+      display: none; position: absolute; inset: 0;
+      background: rgba(255,255,255,0.85); border-radius: 14px;
+      align-items: center; justify-content: center; flex-direction: column; gap: 10px;
+      z-index: 10;
     }
-    .modal-overlay.show { display: flex; }
-    .modal {
-      background: white;
-      border-radius: 20px;
-      padding: 32px;
-      max-width: 560px;
-      width: 100%;
-      max-height: 90vh;
-      overflow-y: auto;
+    .loading-overlay.show { display: flex; }
+    .spinner {
+      width: 36px; height: 36px; border: 3px solid var(--border);
+      border-top-color: var(--primary); border-radius: 50%;
+      animation: spin 0.8s linear infinite;
     }
-    .modal h2 { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
-    .modal .modal-sub { font-size: 14px; color: var(--text-secondary); margin-bottom: 24px; line-height: 1.5; }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .field-label {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--text);
-      margin-bottom: 6px;
-      display: block;
-    }
-    .field-input {
-      width: 100%;
-      border: 2px solid var(--border);
-      border-radius: 10px;
-      padding: 12px 14px;
-      font-family: inherit;
-      font-size: 14px;
-      color: var(--text);
-      outline: none;
-      transition: border-color 0.2s;
-      margin-bottom: 16px;
-    }
-    .field-input:focus { border-color: var(--primary); }
-
-    .guide-box {
-      background: #F0F7FF;
-      border: 1px solid #BFD9F7;
-      border-radius: 10px;
-      padding: 14px 16px;
-      margin-bottom: 24px;
-    }
-    .guide-box h4 { font-size: 13px; font-weight: 700; color: #1E40AF; margin-bottom: 8px; }
-    .guide-box ol { padding-left: 18px; font-size: 13px; color: #374151; line-height: 1.8; }
-    .guide-box a { color: #2563EB; }
-
-    .modal-actions { display: flex; gap: 10px; margin-top: 8px; }
-    .modal-save-btn {
-      flex: 1;
-      background: var(--primary);
-      color: white;
-      border: none;
-      border-radius: 10px;
-      padding: 13px;
-      font-family: inherit;
-      font-size: 14px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .modal-save-btn:hover { background: var(--primary-dark); }
-    .modal-cancel-btn {
-      background: white;
-      color: var(--text-secondary);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 13px 20px;
-      font-family: inherit;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .modal-cancel-btn:hover { border-color: var(--text-secondary); }
-
-    /* ── Tips ── */
-    .tips-row {
-      display: flex;
-      gap: 10px;
-      margin-top: 16px;
-      flex-wrap: wrap;
-    }
-    .tip-chip {
-      background: white;
-      border: 1px solid var(--border);
-      border-radius: 20px;
-      padding: 6px 14px;
-      font-size: 12px;
-      color: var(--text-secondary);
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tip-chip:hover { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-
-    /* Progress toast */
+    /* Toast */
     .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      background: #1A1A2E;
-      color: white;
-      border-radius: 10px;
-      padding: 12px 20px;
-      font-size: 13px;
-      font-weight: 500;
-      z-index: 9999;
-      transform: translateY(80px);
-      opacity: 0;
+      position: fixed; bottom: 24px; right: 24px;
+      background: #1A1A2E; color: white; border-radius: 10px;
+      padding: 12px 20px; font-size: 13px; font-weight: 500;
+      z-index: 9999; transform: translateY(80px); opacity: 0;
       transition: all 0.3s;
     }
     .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* How-to tip */
+    .howto {
+      background: white; border-radius: var(--radius);
+      padding: 20px 24px; box-shadow: var(--shadow);
+      margin-bottom: 20px;
+    }
+    .howto-title { font-size: 13px; font-weight: 700; margin-bottom: 12px; color: var(--text-secondary); }
+    .howto-steps { display: flex; gap: 12px; flex-wrap: wrap; }
+    .howto-step {
+      flex: 1; min-width: 180px; background: var(--bg);
+      border-radius: 10px; padding: 12px 14px;
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .howto-step .s-num {
+      background: var(--primary); color: white; border-radius: 50%;
+      width: 20px; height: 20px; font-size: 11px; font-weight: 800;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+    }
+    .howto-step .s-text { font-size: 12px; line-height: 1.5; color: var(--text); }
+    .howto-step .s-text strong { color: var(--primary); }
   </style>
 </head>
 <body>
 
-<!-- Header -->
 <header>
   <div class="header-inner">
     <div class="logo">
-      <span class="emoji">🏨</span>
+      <span style="font-size:26px;">🏨</span>
       <div>
-        핫딜 호텔 이미지 뚝딱이
-        <div class="sub">배너용 세로 이미지를 자동으로 검색하고 규격에 맞게 다운로드</div>
+        <div class="title">핫딜 호텔 이미지 뚝딱이</div>
+        <div class="sub">배너용 세로 이미지를 규격에 맞게 뚝딱 다운로드</div>
       </div>
     </div>
-    <button class="settings-btn" onclick="openModal()">
-      ⚙️ API 설정
-    </button>
   </div>
 </header>
 
-<!-- Main -->
 <main>
-  <!-- API Notice -->
-  <div class="api-notice" id="apiNotice">
-    <div class="notice-icon">🔑</div>
-    <div class="notice-text">
-      <h3>Google Custom Search API 설정이 필요합니다</h3>
-      <p>이미지 자동 검색을 위해 무료 API 키가 필요합니다. 1회만 설정하면 이후 계속 사용할 수 있어요.</p>
+
+  <!-- How-to -->
+  <div class="howto">
+    <div class="howto-title">⚡ 사용 방법 (API 키 불필요!)</div>
+    <div class="howto-steps">
+      <div class="howto-step">
+        <div class="s-num">1</div>
+        <div class="s-text">호텔 이름 입력 후 <strong>검색 버튼</strong> 클릭 → 구글 이미지 새 탭 열림</div>
+      </div>
+      <div class="howto-step">
+        <div class="s-num">2</div>
+        <div class="s-text">마음에 드는 이미지를 <strong>이 페이지로 드래그</strong> 하거나 URL 복사 후 붙여넣기</div>
+      </div>
+      <div class="howto-step">
+        <div class="s-num">3</div>
+        <div class="s-text"><strong>PC / MO 버튼</strong> 클릭하면 규격에 맞게 자동 저장!</div>
+      </div>
     </div>
-    <button class="notice-btn" onclick="openModal()">지금 설정하기</button>
   </div>
 
-  <!-- Error -->
-  <div class="error-state" id="errorState">
-    <span>❌</span>
-    <span id="errorMsg"></span>
-  </div>
-
-  <!-- Search Card -->
-  <div class="search-card">
-    <div class="search-label">
-      🔍 호텔 이름으로 검색
+  <!-- Step 1: Search -->
+  <div class="step-card">
+    <div class="step-label">
+      <div class="step-num">1</div>
+      호텔 이름 검색
     </div>
     <div class="search-row">
-      <input
-        type="text"
-        class="search-input"
-        id="searchInput"
-        placeholder="예: 롯데호텔 부산, Westin Josun Seoul..."
-        onkeydown="if(event.key==='Enter') doSearch()"
-      />
-      <button class="search-btn" id="searchBtn" onclick="doSearch()">
-        <span id="searchBtnIcon">🔍</span>
-        <span id="searchBtnText">이미지 검색</span>
+      <input type="text" class="search-input" id="hotelInput"
+        placeholder="예: 롯데호텔 부산, 웨스틴 조선 서울..."
+        onkeydown="if(event.key==='Enter') openSearch()" />
+    </div>
+    <div class="quick-btns" id="quickBtns">
+      <a class="quick-btn" id="googleBtn" href="#" target="_blank" onclick="return openGoogle()">
+        <span>🔍</span> Google 이미지 (세로형)
+      </a>
+      <a class="quick-btn" id="bookingBtn" href="#" target="_blank" onclick="return openSite('booking')">
+        <span class="dot" style="background:#003580;"></span> Booking.com
+      </a>
+      <a class="quick-btn" id="expediaBtn" href="#" target="_blank" onclick="return openSite('expedia')">
+        <span class="dot" style="background:#FFC72C;"></span> Expedia
+      </a>
+      <a class="quick-btn" id="agodaBtn" href="#" target="_blank" onclick="return openSite('agoda')">
+        <span class="dot" style="background:#E31837;"></span> Agoda
+      </a>
+      <a class="quick-btn" id="tripBtn" href="#" target="_blank" onclick="return openSite('trip')">
+        <span class="dot" style="background:#00A0E9;"></span> Trip.com
+      </a>
+    </div>
+    <div style="margin-top:10px; font-size:12px; color:#9CA3AF;">
+      💡 Google 이미지는 세로형(Tall) 필터가 자동 적용됩니다
+    </div>
+  </div>
+
+  <!-- Step 2: Size -->
+  <div class="step-card">
+    <div class="step-label">
+      <div class="step-num">2</div>
+      다운로드 규격 선택
+    </div>
+    <div class="size-toggle">
+      <button class="size-btn active" id="sizePc" onclick="setSize('PC')">
+        <span class="size-icon">🖥️</span>
+        <span class="size-name">PC 배너</span>
+        <span class="size-dim">724 × 1086 px</span>
+      </button>
+      <button class="size-btn" id="sizeMo" onclick="setSize('MO')">
+        <span class="size-icon">📱</span>
+        <span class="size-name">MO 배너</span>
+        <span class="size-dim">480 × 720 px</span>
       </button>
     </div>
-    <div class="tips-row">
-      <span style="font-size:12px;color:#9CA3AF;">추천 검색어:</span>
-      <span class="tip-chip" onclick="fillSearch('롯데호텔 부산')">롯데호텔 부산</span>
-      <span class="tip-chip" onclick="fillSearch('웨스틴 조선 서울')">웨스틴 조선 서울</span>
-      <span class="tip-chip" onclick="fillSearch('파라다이스 호텔 부산')">파라다이스 호텔 부산</span>
-      <span class="tip-chip" onclick="fillSearch('신라호텔 제주')">신라호텔 제주</span>
+  </div>
+
+  <!-- Step 3: Drop / URL -->
+  <div class="step-card" id="dropCard">
+    <div class="step-label">
+      <div class="step-num">3</div>
+      이미지 가져오기
     </div>
 
-    <!-- Size Toggle -->
-    <div style="margin-top:20px;padding-top:20px;border-top:1px solid var(--border);">
-      <div class="search-label">📐 다운로드 규격 선택</div>
-      <div class="size-toggle">
-        <button class="size-btn active" id="sizePcBtn" onclick="setSize('PC')">
-          🖥️ PC 배너
-          <span class="size-badge">724 × 1086</span>
-        </button>
-        <button class="size-btn" id="sizeMoBtn" onclick="setSize('MO')">
-          📱 MO 배너
-          <span class="size-badge">480 × 720</span>
-        </button>
+    <!-- Drop Zone -->
+    <div class="drop-zone" id="dropZone"
+      ondragover="handleDragOver(event)"
+      ondragleave="handleDragLeave(event)"
+      ondrop="handleDrop(event)"
+    >
+      <input type="file" accept="image/*" onchange="handleFileInput(event)" />
+      <div class="loading-overlay" id="dropLoading">
+        <div class="spinner"></div>
+        <span style="font-size:13px;color:var(--text-secondary);">이미지 불러오는 중...</span>
       </div>
+      <div class="drop-icon">🖼️</div>
+      <div class="drop-title">여기에 이미지를 드래그하세요</div>
+      <div class="drop-sub">
+        구글 이미지에서 드래그 &amp; 드롭<br>
+        또는 클릭해서 파일 직접 선택
+      </div>
+      <div class="drop-methods">
+        <div class="method-chip">🖱️ 드래그 &amp; 드롭</div>
+        <div class="method-chip">📁 파일 선택</div>
+        <div class="method-chip">⌘V 클립보드 붙여넣기</div>
+      </div>
+    </div>
+
+    <!-- URL Input -->
+    <div style="display:flex;align-items:center;gap:10px;margin:16px 0 4px;">
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+      <span style="font-size:12px;color:#9CA3AF;flex-shrink:0;">또는 이미지 URL 직접 입력</span>
+      <div style="flex:1;height:1px;background:var(--border);"></div>
+    </div>
+    <div class="url-row">
+      <input type="url" class="url-input" id="urlInput"
+        placeholder="https://... 이미지 URL 붙여넣기"
+        onkeydown="if(event.key==='Enter') loadFromUrl()" />
+      <button class="url-submit-btn" onclick="loadFromUrl()">적용</button>
     </div>
   </div>
 
-  <!-- Loading -->
-  <div class="loading-state" id="loadingState">
-    <div class="spinner"></div>
-    <p>호텔 이미지를 검색하는 중...</p>
-  </div>
-
-  <!-- Results -->
-  <div id="resultsSection" style="display:none;">
-    <div class="results-header">
-      <div class="results-title">
-        🖼️ 검색 결과
-        <span class="results-count" id="resultsCount">0</span>
-      </div>
-      <span style="font-size:12px;color:var(--text-secondary);">이미지를 클릭하면 미리보기 및 다운로드</span>
+  <!-- Step 4: Preview & Download -->
+  <div class="step-card preview-section" id="previewSection">
+    <div class="step-label">
+      <div class="step-num">4</div>
+      미리보기 &amp; 다운로드
     </div>
-    <div class="image-grid" id="imageGrid"></div>
-  </div>
-
-  <!-- Download Panel -->
-  <div class="download-panel" id="downloadPanel">
-    <div class="download-panel-inner">
-      <div class="preview-area">
-        <canvas class="preview-canvas" id="previewCanvas" width="200" height="300"></canvas>
-        <button class="deselect-btn" onclick="deselectImage()">✕ 선택 해제</button>
+    <div class="preview-inner">
+      <div class="preview-wrap">
+        <canvas id="previewCanvas"></canvas>
       </div>
-      <div class="download-info">
-        <div class="download-title">다운로드</div>
-        <div class="download-sub" id="selectedImageTitle">선택한 이미지를 원하는 규격으로 다운로드하세요.</div>
-        <div class="download-btns">
-          <button class="dl-btn dl-btn-pc" id="dlPcBtn" onclick="downloadImage('PC')">
+      <div class="preview-info">
+        <div class="info-title" id="previewTitle">이미지 준비 완료!</div>
+        <div class="info-sub" id="previewSub">선택한 규격으로 저장됩니다.</div>
+        <div class="crop-hint">
+          <strong>자동 크롭 안내</strong><br>
+          이미지가 배너 비율에 맞게 중앙 기준으로 잘립니다.<br>
+          세로형 사진일수록 잘림 없이 예쁘게 나와요.
+        </div>
+        <div class="dl-btns">
+          <button class="dl-btn dl-btn-pc" onclick="doDownload('PC')">
             🖥️ PC 배너 다운로드
             <span class="dl-size-badge">724 × 1086 px</span>
           </button>
-          <button class="dl-btn dl-btn-mo" id="dlMoBtn" onclick="downloadImage('MO')">
+          <button class="dl-btn dl-btn-mo" onclick="doDownload('MO')">
             📱 MO 배너 다운로드
             <span class="dl-size-badge">480 × 720 px</span>
           </button>
-          <button class="dl-both-btn" onclick="downloadBoth()">
-            ⬇️ PC + MO 모두 다운로드
-          </button>
+          <button class="dl-btn-both" onclick="doDownloadBoth()">⬇️ PC + MO 모두 저장</button>
         </div>
+        <button class="reset-btn" onclick="resetImage()">✕ 다른 이미지 선택</button>
       </div>
     </div>
   </div>
 
-  <!-- Initial Empty State -->
-  <div class="empty-state" id="emptyState">
-    <div class="emoji">🏝️</div>
-    <h3>호텔 이름을 검색해보세요</h3>
-    <p>booking.com, expedia, agoda, trip.com 등에서<br>사용하는 공식 세로형 호텔 이미지를 자동으로 찾아드립니다.</p>
-  </div>
 </main>
 
-<!-- Settings Modal -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <h2>⚙️ API 설정</h2>
-    <p class="modal-sub">Google Custom Search API를 사용하여 이미지를 검색합니다. 무료로 하루 100회 검색 가능합니다.</p>
-
-    <div class="guide-box">
-      <h4>📋 1회 설정 방법</h4>
-      <ol>
-        <li><a href="https://console.cloud.google.com/apis/credentials" target="_blank">Google Cloud Console</a>에서 API 키 발급</li>
-        <li>Custom Search API 활성화</li>
-        <li><a href="https://programmablesearchengine.google.com/create/new" target="_blank">Custom Search Engine</a> 생성 (이미지 검색 ON)</li>
-        <li>아래에 API 키와 검색엔진 ID(cx) 입력</li>
-      </ol>
-    </div>
-
-    <label class="field-label">Google API Key</label>
-    <input type="password" class="field-input" id="apiKeyInput" placeholder="AIzaSy..." />
-
-    <label class="field-label">Custom Search Engine ID (cx)</label>
-    <input type="text" class="field-input" id="cseIdInput" placeholder="017xxxxxxxxxxxxxx:xxxxxxxxx" />
-
-    <div class="modal-actions">
-      <button class="modal-cancel-btn" onclick="closeModal()">취소</button>
-      <button class="modal-save-btn" onclick="saveConfig()">저장하고 시작하기</button>
-    </div>
-  </div>
-</div>
-
-<!-- Toast -->
 <div class="toast" id="toast"></div>
 
 <script>
+// ── State ──────────────────────────────────────────────
+let currentSize = 'PC';
+let loadedImage = null; // HTMLImageElement or ImageBitmap
+let loadedImageName = '';
+
 const SIZES = {
-  PC: { width: 724, height: 1086 },
-  MO: { width: 480, height: 720 }
+  PC: { w: 724, h: 1086 },
+  MO: { w: 480, h: 720 }
 };
 
-let currentSize = 'PC';
-let searchResults = [];
-let selectedImageUrl = null;
-let selectedImageTitle = '';
+// ── Size Toggle ────────────────────────────────────────
+function setSize(s) {
+  currentSize = s;
+  document.getElementById('sizePc').classList.toggle('active', s === 'PC');
+  document.getElementById('sizeMo').classList.toggle('active', s === 'MO');
+  if (loadedImage) renderPreview();
+}
 
-// ── Init ──────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', () => {
-  const apiKey = localStorage.getItem('gApiKey');
-  const cx = localStorage.getItem('gCseCx');
-  if (!apiKey || !cx) {
-    document.getElementById('apiNotice').classList.add('show');
+// ── Search Links ───────────────────────────────────────
+function getHotel() {
+  return document.getElementById('hotelInput').value.trim();
+}
+
+function openGoogle() {
+  const q = getHotel();
+  if (!q) { showToast('호텔 이름을 먼저 입력하세요'); return false; }
+  // tbs=iar:t → tall/portrait images only
+  const url = `https://www.google.com/search?q=${encodeURIComponent(q + ' 호텔')}&tbm=isch&tbs=iar:t`;
+  window.open(url, '_blank');
+  return false;
+}
+
+function openSite(site) {
+  const q = getHotel();
+  if (!q) { showToast('호텔 이름을 먼저 입력하세요'); return false; }
+  const urls = {
+    booking: `https://www.booking.com/searchresults.html?ss=${encodeURIComponent(q)}`,
+    expedia: `https://www.expedia.com/Hotel-Search?destination=${encodeURIComponent(q)}`,
+    agoda:   `https://www.agoda.com/search?q=${encodeURIComponent(q)}`,
+    trip:    `https://www.trip.com/hotels/?keyword=${encodeURIComponent(q)}`,
+  };
+  window.open(urls[site], '_blank');
+  return false;
+}
+
+// ── Drag & Drop ────────────────────────────────────────
+function handleDragOver(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('dropZone').classList.add('dragover');
+}
+function handleDragLeave(e) {
+  document.getElementById('dropZone').classList.remove('dragover');
+}
+
+async function handleDrop(e) {
+  e.preventDefault();
+  e.stopPropagation();
+  document.getElementById('dropZone').classList.remove('dragover');
+
+  const dt = e.dataTransfer;
+
+  // Case 1: File drag (from desktop/finder)
+  if (dt.files && dt.files.length > 0) {
+    const file = dt.files[0];
+    if (file.type.startsWith('image/')) {
+      loadedImageName = file.name.replace(/\.[^.]+$/, '');
+      await loadFromFile(file);
+      return;
+    }
   }
-  // Pre-fill modal
-  if (apiKey) document.getElementById('apiKeyInput').value = apiKey;
-  if (cx) document.getElementById('cseIdInput').value = cx;
+
+  // Case 2: Image drag from browser (get URL)
+  const html = dt.getData('text/html');
+  const uriList = dt.getData('text/uri-list');
+  const plain = dt.getData('text/plain');
+
+  // Try to extract src from HTML
+  if (html) {
+    const m = html.match(/src=["']([^"']+)["']/);
+    if (m && m[1] && isImageUrl(m[1])) {
+      await loadFromUrl(m[1]);
+      return;
+    }
+  }
+
+  // Try uri-list
+  if (uriList && isImageUrl(uriList.trim())) {
+    await loadFromUrl(uriList.trim());
+    return;
+  }
+
+  // Try plain text URL
+  if (plain && isImageUrl(plain.trim())) {
+    await loadFromUrl(plain.trim());
+    return;
+  }
+
+  showToast('⚠️ 이미지를 인식하지 못했어요. URL을 직접 붙여넣어 보세요.');
+}
+
+function isImageUrl(url) {
+  return url.startsWith('http') && (
+    /\.(jpg|jpeg|png|webp|gif|avif)/i.test(url) ||
+    url.includes('photo') || url.includes('image') || url.includes('img')
+  );
+}
+
+// ── Clipboard Paste ────────────────────────────────────
+document.addEventListener('paste', async (e) => {
+  const items = e.clipboardData?.items;
+  if (!items) return;
+
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      const file = item.getAsFile();
+      loadedImageName = '붙여넣기_이미지';
+      await loadFromFile(file);
+      return;
+    }
+  }
+
+  // Text paste — try as URL
+  const text = e.clipboardData.getData('text/plain')?.trim();
+  if (text && isImageUrl(text)) {
+    document.getElementById('urlInput').value = text;
+    await loadFromUrl(text);
+  }
 });
 
-// ── Config Modal ──────────────────────────────────────
-function openModal() {
-  document.getElementById('modalOverlay').classList.add('show');
+// ── File Input ─────────────────────────────────────────
+async function handleFileInput(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  loadedImageName = file.name.replace(/\.[^.]+$/, '');
+  await loadFromFile(file);
 }
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('show');
-}
-function saveConfig() {
-  const apiKey = document.getElementById('apiKeyInput').value.trim();
-  const cx = document.getElementById('cseIdInput').value.trim();
-  if (!apiKey || !cx) {
-    showToast('API Key와 검색엔진 ID 모두 입력해주세요.');
-    return;
+
+async function loadFromFile(file) {
+  showDropLoading(true);
+  try {
+    const url = URL.createObjectURL(file);
+    const img = await loadImg(url);
+    loadedImage = img;
+    renderPreview();
+    showPreviewSection();
+  } catch {
+    showToast('⚠️ 이미지 로드 실패');
+  } finally {
+    showDropLoading(false);
   }
-  localStorage.setItem('gApiKey', apiKey);
-  localStorage.setItem('gCseCx', cx);
-  document.getElementById('apiNotice').classList.remove('show');
-  closeModal();
-  showToast('✅ API 설정이 저장되었습니다!');
 }
 
-// ── Size Toggle ──────────────────────────────────────
-function setSize(size) {
-  currentSize = size;
-  document.getElementById('sizePcBtn').classList.toggle('active', size === 'PC');
-  document.getElementById('sizeMoBtn').classList.toggle('active', size === 'MO');
-  if (selectedImageUrl) renderPreview(selectedImageUrl);
-}
-
-// ── Search ───────────────────────────────────────────
-function fillSearch(text) {
-  document.getElementById('searchInput').value = text;
-  doSearch();
-}
-
-async function doSearch() {
-  const query = document.getElementById('searchInput').value.trim();
-  if (!query) { showToast('호텔 이름을 입력해주세요.'); return; }
-
-  const apiKey = localStorage.getItem('gApiKey');
-  const cx = localStorage.getItem('gCseCx');
-  if (!apiKey || !cx) {
-    document.getElementById('apiNotice').classList.add('show');
-    openModal();
-    return;
+// ── URL Load ───────────────────────────────────────────
+async function loadFromUrl(url) {
+  if (typeof url !== 'string') {
+    url = document.getElementById('urlInput').value.trim();
   }
+  if (!url) { showToast('URL을 입력하세요'); return; }
 
-  // UI state: loading
-  setSearchLoading(true);
-  hideError();
-  document.getElementById('emptyState').style.display = 'none';
-  document.getElementById('resultsSection').style.display = 'none';
-  document.getElementById('downloadPanel').classList.remove('show');
-  deselectImage(true);
+  showDropLoading(true);
+  try {
+    const img = await loadImgCors(url);
+    loadedImage = img;
+    loadedImageName = url.split('/').pop().replace(/\?.*/, '').replace(/\.[^.]+$/, '') || '호텔이미지';
+    renderPreview();
+    showPreviewSection();
+  } catch {
+    showToast('⚠️ 이미지 로드 실패. 다른 이미지를 사용하거나 파일을 직접 올려주세요.');
+  } finally {
+    showDropLoading(false);
+  }
+}
+
+// ── Image Loaders ──────────────────────────────────────
+function loadImg(src) {
+  return new Promise((res, rej) => {
+    const img = new Image();
+    img.onload = () => res(img);
+    img.onerror = rej;
+    img.src = src;
+  });
+}
+
+async function loadImgCors(url) {
+  // Try 1: direct with crossOrigin
+  try {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    await new Promise((res, rej) => {
+      img.onload = res; img.onerror = rej;
+      img.src = url + (url.includes('?') ? '&' : '?') + '_cc=1';
+    });
+    return img;
+  } catch {}
+
+  // Try 2: without crossOrigin (preview only, canvas tainted)
+  try {
+    const img = await loadImg(url);
+    img._noCors = true;
+    return img;
+  } catch {}
+
+  // Try 3: CORS proxy
+  const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(url)}`;
+  const img = new Image();
+  img.crossOrigin = 'anonymous';
+  await new Promise((res, rej) => {
+    img.onload = res; img.onerror = rej;
+    img.src = proxyUrl;
+  });
+  img._proxyUrl = proxyUrl;
+  return img;
+}
+
+// ── Preview ────────────────────────────────────────────
+function renderPreview() {
+  if (!loadedImage) return;
+  const { w, h } = SIZES[currentSize];
+  const maxH = 320;
+  const scale = maxH / h;
+  const pw = Math.round(w * scale);
+  const ph = maxH;
+
+  const canvas = document.getElementById('previewCanvas');
+  canvas.width = pw; canvas.height = ph;
+
+  const ctx = canvas.getContext('2d');
+  drawCover(ctx, loadedImage, pw, ph);
+
+  // Info
+  document.getElementById('previewTitle').textContent =
+    `${currentSize === 'PC' ? '🖥️ PC' : '📱 MO'} 배너 미리보기`;
+  document.getElementById('previewSub').textContent =
+    `${loadedImage.naturalWidth || '?'} × ${loadedImage.naturalHeight || '?'} → ${w} × ${h} px`;
+}
+
+function drawCover(ctx, img, w, h) {
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  const scale = Math.max(w / iw, h / ih);
+  const sw = iw * scale, sh = ih * scale;
+  const ox = (w - sw) / 2, oy = (h - sh) / 2;
+  ctx.fillStyle = '#F3F4F6';
+  ctx.fillRect(0, 0, w, h);
+  ctx.drawImage(img, ox, oy, sw, sh);
+}
+
+// ── Download ───────────────────────────────────────────
+async function doDownload(size) {
+  if (!loadedImage) return;
+  const { w, h } = SIZES[size];
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w; canvas.height = h;
+  const ctx = canvas.getContext('2d');
+
+  // If image was loaded without CORS, try to re-load with proxy for canvas
+  let img = loadedImage;
+  if (img._noCors) {
+    try {
+      const proxyUrl = `https://corsproxy.io/?${encodeURIComponent(img.src)}`;
+      const proxied = new Image();
+      proxied.crossOrigin = 'anonymous';
+      await new Promise((res, rej) => { proxied.onload = res; proxied.onerror = rej; proxied.src = proxyUrl; });
+      img = proxied;
+    } catch {
+      showToast('⚠️ CORS 문제로 다운로드 실패. 파일을 직접 올리거나 다른 이미지를 시도해주세요.');
+      return;
+    }
+  }
 
   try {
-    const results = await fetchImages(query, apiKey, cx);
-    searchResults = results;
-    renderResults(results);
-  } catch (e) {
-    showError(e.message);
-  } finally {
-    setSearchLoading(false);
-  }
-}
-
-async function fetchImages(query, apiKey, cx) {
-  // 세로형 이미지를 위해 booking/expedia/agoda 검색 + 세로 필터
-  const siteFilter = 'site:booking.com OR site:expedia.com OR site:agoda.com OR site:trip.com OR site:hotels.com';
-  const searchQuery = `${query} hotel ${siteFilter}`;
-
-  const params = new URLSearchParams({
-    key: apiKey,
-    cx: cx,
-    q: searchQuery,
-    searchType: 'image',
-    imgSize: 'large',
-    imgType: 'photo',
-    num: '10',
-    safe: 'active',
-  });
-
-  const res = await fetch(`https://www.googleapis.com/customsearch/v1?${params}`);
-  const data = await res.json();
-
-  if (data.error) {
-    const msg = data.error.message || 'API 오류';
-    if (data.error.code === 429) throw new Error('API 일일 한도(100회)를 초과했습니다. 내일 다시 시도해주세요.');
-    if (data.error.code === 403) throw new Error('API 키가 잘못되었거나 Custom Search API가 활성화되지 않았습니다.');
-    throw new Error(`검색 실패: ${msg}`);
+    drawCover(ctx, img, w, h);
+  } catch {
+    showToast('⚠️ 다운로드 실패. 파일 직접 업로드를 이용해주세요.');
+    return;
   }
 
-  const items = data.items || [];
-  if (items.length === 0) {
-    // Retry without site filter
-    return await fetchImagesGeneral(query, apiKey, cx);
-  }
+  const hotel = (document.getElementById('hotelInput').value || loadedImageName || '호텔').replace(/\s+/g, '_');
+  const filename = `${hotel}_${size}_${w}x${h}.jpg`;
 
-  // Sort: prefer portrait ratio
-  const mapped = items.map(item => ({
-    url: item.link,
-    thumb: item.image?.thumbnailLink || item.link,
-    w: item.image?.width || 0,
-    h: item.image?.height || 0,
-    source: tryHostname(item.image?.contextLink || item.link),
-    title: item.title,
-    contextLink: item.image?.contextLink || '',
-  }));
-
-  mapped.sort((a, b) => (b.h / (b.w || 1)) - (a.h / (a.w || 1)));
-  return mapped.slice(0, 5);
+  canvas.toBlob(blob => {
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename;
+    document.body.appendChild(a); a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    showToast(`✅ ${size === 'PC' ? 'PC (724×1086)' : 'MO (480×720)'} 저장 완료!`);
+  }, 'image/jpeg', 0.92);
 }
 
-async function fetchImagesGeneral(query, apiKey, cx) {
-  // Fallback: no site restriction
-  const params = new URLSearchParams({
-    key: apiKey,
-    cx: cx,
-    q: `${query} hotel exterior`,
-    searchType: 'image',
-    imgSize: 'large',
-    imgType: 'photo',
-    num: '10',
-    safe: 'active',
-  });
-
-  const res = await fetch(`https://www.googleapis.com/customsearch/v1?${params}`);
-  const data = await res.json();
-  if (data.error) throw new Error(data.error.message);
-
-  const items = data.items || [];
-  const mapped = items.map(item => ({
-    url: item.link,
-    thumb: item.image?.thumbnailLink || item.link,
-    w: item.image?.width || 0,
-    h: item.image?.height || 0,
-    source: tryHostname(item.image?.contextLink || item.link),
-    title: item.title,
-    contextLink: item.image?.contextLink || '',
-  }));
-  mapped.sort((a, b) => (b.h / (b.w || 1)) - (a.h / (a.w || 1)));
-  return mapped.slice(0, 5);
+async function doDownloadBoth() {
+  await doDownload('PC');
+  await new Promise(r => setTimeout(r, 400));
+  await doDownload('MO');
 }
 
-function tryHostname(url) {
-  try { return new URL(url).hostname.replace('www.', ''); }
-  catch { return url; }
+// ── UI Helpers ─────────────────────────────────────────
+function showPreviewSection() {
+  document.getElementById('previewSection').classList.add('show');
+  document.getElementById('previewSection').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-// ── Render ────────────────────────────────────────────
-function renderResults(items) {
-  const grid = document.getElementById('imageGrid');
-  grid.innerHTML = '';
-  document.getElementById('resultsCount').textContent = items.length;
-  document.getElementById('resultsSection').style.display = 'block';
-
-  items.forEach((item, i) => {
-    const card = document.createElement('div');
-    card.className = 'image-card';
-    card.id = `card-${i}`;
-    card.onclick = () => selectImage(i);
-
-    const dimText = item.w && item.h ? `${item.w} × ${item.h}px` : '';
-    const portrait = item.h > item.w;
-    const ratio = item.h / (item.w || 1);
-
-    card.innerHTML = `
-      <div class="check-badge">✓</div>
-      <img
-        class="card-thumb"
-        src="${item.thumb}"
-        alt="${item.title}"
-        onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
-        loading="lazy"
-      />
-      <div class="card-thumb-placeholder" style="display:none;">🏨</div>
-      <div class="card-info">
-        <div class="card-source">
-          <span class="source-dot" style="background:${portrait ? '#10B981' : '#F59E0B'}"></span>
-          ${item.source}
-          ${portrait ? '<span style="color:#10B981;font-weight:600;">세로✓</span>' : ''}
-        </div>
-        <div class="card-title">${item.title}</div>
-        ${dimText ? `<div class="card-dims">${dimText} · 비율 ${ratio.toFixed(2)}</div>` : ''}
-      </div>
-    `;
-    grid.appendChild(card);
-  });
-}
-
-// ── Select Image ──────────────────────────────────────
-function selectImage(idx) {
-  // Deselect all
-  document.querySelectorAll('.image-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById(`card-${idx}`)?.classList.add('selected');
-
-  const item = searchResults[idx];
-  selectedImageUrl = item.url;
-  selectedImageTitle = item.title;
-
-  document.getElementById('selectedImageTitle').textContent = item.title;
-  document.getElementById('downloadPanel').classList.add('show');
-
-  renderPreview(item.url);
-  document.getElementById('downloadPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-}
-
-function deselectImage(silent = false) {
-  selectedImageUrl = null;
-  document.querySelectorAll('.image-card').forEach(c => c.classList.remove('selected'));
-  document.getElementById('downloadPanel').classList.remove('show');
+function resetImage() {
+  loadedImage = null;
+  loadedImageName = '';
+  document.getElementById('previewSection').classList.remove('show');
+  document.getElementById('urlInput').value = '';
   const ctx = document.getElementById('previewCanvas').getContext('2d');
   ctx.clearRect(0, 0, 9999, 9999);
 }
 
-// ── Preview on Canvas ─────────────────────────────────
-function renderPreview(imgUrl) {
-  const canvas = document.getElementById('previewCanvas');
-  const { width, height } = SIZES[currentSize];
-  const previewH = 300;
-  const previewW = Math.round(width / height * previewH);
-
-  canvas.width = previewW;
-  canvas.height = previewH;
-  canvas.style.width = previewW + 'px';
-  canvas.style.height = previewH + 'px';
-
-  const ctx = canvas.getContext('2d');
-  ctx.fillStyle = '#F3F4F6';
-  ctx.fillRect(0, 0, previewW, previewH);
-
-  loadCorsImage(imgUrl).then(img => {
-    const scale = Math.max(previewW / img.width, previewH / img.height);
-    const sw = img.width * scale;
-    const sh = img.height * scale;
-    const ox = (previewW - sw) / 2;
-    const oy = (previewH - sh) / 2;
-    ctx.drawImage(img, ox, oy, sw, sh);
-  }).catch(() => {
-    ctx.fillStyle = '#9CA3AF';
-    ctx.font = '14px sans-serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('미리보기 불가', previewW / 2, previewH / 2);
-  });
-}
-
-// ── Download ──────────────────────────────────────────
-async function downloadImage(size) {
-  if (!selectedImageUrl) return;
-  setDownloadLoading(true, size);
-  try {
-    await doDownload(selectedImageUrl, size);
-    showToast(`✅ ${size === 'PC' ? 'PC (724×1086)' : 'MO (480×720)'} 이미지 저장 완료!`);
-  } catch (e) {
-    showToast('⚠️ 다운로드 실패: ' + e.message);
-  } finally {
-    setDownloadLoading(false, size);
-  }
-}
-
-async function downloadBoth() {
-  if (!selectedImageUrl) return;
-  try {
-    await doDownload(selectedImageUrl, 'PC');
-    await new Promise(r => setTimeout(r, 300));
-    await doDownload(selectedImageUrl, 'MO');
-    showToast('✅ PC + MO 이미지 모두 저장 완료!');
-  } catch (e) {
-    showToast('⚠️ 다운로드 실패: ' + e.message);
-  }
-}
-
-async function doDownload(imgUrl, size) {
-  const { width, height } = SIZES[size];
-  const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
-  const ctx = canvas.getContext('2d');
-
-  const img = await loadCorsImage(imgUrl);
-  const scale = Math.max(width / img.width, height / img.height);
-  const sw = img.width * scale;
-  const sh = img.height * scale;
-  const ox = (width - sw) / 2;
-  const oy = (height - sh) / 2;
-  ctx.drawImage(img, ox, oy, sw, sh);
-
-  const blob = await new Promise(res => canvas.toBlob(res, 'image/jpeg', 0.92));
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  const hotelName = document.getElementById('searchInput').value.replace(/\s+/g, '_');
-  a.download = `hotel_banner_${size}_${width}x${height}_${hotelName}.jpg`;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  URL.revokeObjectURL(url);
-}
-
-function loadCorsImage(url) {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.crossOrigin = 'anonymous';
-    img.onload = () => resolve(img);
-    img.onerror = () => {
-      // Try CORS proxy
-      const img2 = new Image();
-      img2.crossOrigin = 'anonymous';
-      img2.onload = () => resolve(img2);
-      img2.onerror = () => reject(new Error('이미지 로드 실패 (CORS 차단)'));
-      img2.src = `https://corsproxy.io/?${encodeURIComponent(url)}`;
-    };
-    img.src = url;
-  });
-}
-
-// ── UI Helpers ────────────────────────────────────────
-function setSearchLoading(loading) {
-  document.getElementById('loadingState').classList.toggle('show', loading);
-  document.getElementById('searchBtn').disabled = loading;
-  document.getElementById('searchBtnIcon').textContent = loading ? '' : '🔍';
-  document.getElementById('searchBtnText').textContent = loading ? '검색 중...' : '이미지 검색';
-}
-
-function setDownloadLoading(loading, size) {
-  const btn = document.getElementById(size === 'PC' ? 'dlPcBtn' : 'dlMoBtn');
-  btn.disabled = loading;
-  if (loading) btn.textContent = '저장 중...';
-  else {
-    btn.innerHTML = size === 'PC'
-      ? '🖥️ PC 배너 다운로드 <span class="dl-size-badge">724 × 1086 px</span>'
-      : '📱 MO 배너 다운로드 <span class="dl-size-badge">480 × 720 px</span>';
-  }
-}
-
-function showError(msg) {
-  const el = document.getElementById('errorState');
-  document.getElementById('errorMsg').textContent = msg;
-  el.classList.add('show');
-}
-function hideError() {
-  document.getElementById('errorState').classList.remove('show');
+function showDropLoading(show) {
+  document.getElementById('dropLoading').classList.toggle('show', show);
 }
 
 let toastTimer;
