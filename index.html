@@ -234,7 +234,6 @@
 const SIZES = { PC: { w: 724, h: 1086 }, MO: { w: 480, h: 720 } };
 let results = [];
 let selectedIdx = null;
-let selectedBitmap = null;
 
 // ── Search ───────────────────────────────────────────
 async function doSearch() {
@@ -312,6 +311,13 @@ function parseGoogleImages(html) {
   return (hq.length >= 5 ? hq : all_items.filter(r => Math.min(r.w, r.h) >= 500));
 }
 
+// ── weserv.nl: 서버사이드 리사이즈/크롭 ─────────────
+// canvas 없이 서버에서 직접 고화질 크롭 후 반환
+function weservUrl(imageUrl, w, h) {
+  const base = imageUrl.startsWith('//') ? 'https:' + imageUrl : imageUrl;
+  return `https://images.weserv.nl/?url=${encodeURIComponent(base)}&w=${w}&h=${h}&fit=cover&output=jpg&q=95`;
+}
+
 // ── Render Results ────────────────────────────────────
 function renderResults(query) {
   let html = `
@@ -321,10 +327,12 @@ function renderResults(query) {
     <div class="image-grid" id="grid">`;
 
   results.forEach((r, i) => {
+    // 썸네일도 weserv로 통일 (로딩 안정성)
+    const thumbSrc = weservUrl(r.url, 300, 450);
     html += `
       <div class="img-card" id="card${i}" onclick="selectImage(${i})">
         <div class="check">✓</div>
-        <img class="img-thumb" src="${r.thumb}" alt="${r.title}"
+        <img class="img-thumb" src="${thumbSrc}" alt="${r.title}"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
           loading="lazy" />
         <div class="img-fallback" style="display:none;">🏨</div>
@@ -340,45 +348,38 @@ function renderResults(query) {
 }
 
 // ── Select Image ──────────────────────────────────────
-async function selectImage(idx) {
-  // Deselect all
+function selectImage(idx) {
   document.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
   document.getElementById(`card${idx}`)?.classList.add('selected');
   selectedIdx = idx;
-
-  const item = results[idx];
-  const panel = document.getElementById('dlPanel');
-  panel.className = 'dl-panel show';
-  panel.innerHTML = `<div class="spinner-wrap"><div class="spinner"></div></div>`;
-  panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-
-  try {
-    // 반드시 원본(고해상도) URL로 로드 — 썸네일 fallback 없음
-    selectedBitmap = await loadImageForCanvas(item.url);
-    renderDownloadPanel(item);
-  } catch {
-    panel.innerHTML = `<div class="error-box" style="margin:16px;">❌ 이 이미지는 불러올 수 없습니다 (사이트 차단). 다른 이미지를 선택해주세요.</div>`;
-  }
+  renderDownloadPanel(results[idx]);
+  document.getElementById('dlPanel').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 function renderDownloadPanel(item) {
   const panel = document.getElementById('dlPanel');
-  const ph = 280, pw = Math.round(724 / 1086 * ph);
+  const pw = 186, ph = 280; // PC 비율 미리보기
+  const previewUrl = weservUrl(item.url, pw * 2, ph * 2); // 2x for retina
 
+  panel.className = 'dl-panel show';
   panel.innerHTML = `
     <div class="dl-inner">
       <div class="dl-preview">
         <div class="canvas-label">PC 배너 미리보기 (크롭)</div>
-        <canvas id="previewCanvas" width="${pw}" height="${ph}"></canvas>
+        <img id="previewImg"
+          src="${previewUrl}"
+          width="${pw}" height="${ph}"
+          style="border-radius:8px;border:1px solid var(--border);display:block;"
+          onerror="this.alt='미리보기 실패'" />
       </div>
       <div class="dl-info">
         <div class="dl-title">다운로드</div>
-        <div class="dl-sub">${item.source ? item.source + ' · ' : ''}${item.w}×${item.h} 원본 → 배너 규격으로 자동 변환</div>
+        <div class="dl-sub">${item.source ? item.source + ' · ' : ''}원본 ${item.w}×${item.h} → 서버에서 직접 크롭 (고화질)</div>
         <div class="dl-btns">
-          <button class="btn-pc" onclick="download('PC')">
+          <button class="btn-pc" id="btnDlPC" onclick="doDownload('PC')">
             🖥️ PC 배너 저장 <span class="badge">724 × 1086</span>
           </button>
-          <button class="btn-mo" onclick="download('MO')">
+          <button class="btn-mo" id="btnDlMO" onclick="doDownload('MO')">
             📱 MO 배너 저장 <span class="badge">480 × 720</span>
           </button>
           <button class="btn-both" onclick="downloadBoth()">⬇️ PC + MO 모두 저장</button>
@@ -386,28 +387,22 @@ function renderDownloadPanel(item) {
         <button class="btn-reset" onclick="deselect()">✕ 다른 이미지 선택</button>
       </div>
     </div>`;
-
-  renderPreview();
 }
 
-function renderPreview() {
-  const canvas = document.getElementById('previewCanvas');
-  if (!canvas || !selectedBitmap) return;
-  const ph = 280, pw = Math.round(724 / 1086 * ph);
-  canvas.width = pw; canvas.height = ph;
-  drawCover(canvas.getContext('2d'), selectedBitmap, pw, ph);
-}
-
-// ── Download ──────────────────────────────────────────
-async function download(size) {
-  if (!selectedBitmap) return;
+// ── Download (canvas 없음 — weserv 서버 크롭) ────────
+async function doDownload(size) {
+  if (selectedIdx === null) return;
+  const item = results[selectedIdx];
   const { w, h } = SIZES[size];
-  const canvas = document.createElement('canvas');
-  canvas.width = w; canvas.height = h;
-  drawCover(canvas.getContext('2d'), selectedBitmap, w, h);
+  const btn = document.getElementById(size === 'PC' ? 'btnDlPC' : 'btnDlMO');
+  if (btn) { btn.disabled = true; btn.textContent = '다운로드 중...'; }
 
-  const hotelName = document.getElementById('searchInput').value.replace(/\s+/g,'_');
-  canvas.toBlob(blob => {
+  try {
+    const url = weservUrl(item.url, w, h);
+    const res = await fetch(url);
+    if (!res.ok) throw new Error('fetch failed');
+    const blob = await res.blob();
+    const hotelName = document.getElementById('searchInput').value.replace(/\s+/g, '_') || '호텔';
     const a = Object.assign(document.createElement('a'), {
       href: URL.createObjectURL(blob),
       download: `${hotelName}_${size}_${w}x${h}.jpg`
@@ -415,88 +410,29 @@ async function download(size) {
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
     toast(`✅ ${size === 'PC' ? 'PC (724×1086)' : 'MO (480×720)'} 저장 완료!`);
-  }, 'image/jpeg', 0.92);
+  } catch {
+    toast('❌ 다운로드 실패. 다른 이미지를 선택해주세요.');
+  } finally {
+    if (btn) {
+      btn.disabled = false;
+      btn.innerHTML = size === 'PC'
+        ? '🖥️ PC 배너 저장 <span class="badge">724 × 1086</span>'
+        : '📱 MO 배너 저장 <span class="badge">480 × 720</span>';
+    }
+  }
 }
 
 async function downloadBoth() {
-  await download('PC');
-  await new Promise(r => setTimeout(r, 400));
-  await download('MO');
+  await doDownload('PC');
+  await new Promise(r => setTimeout(r, 500));
+  await doDownload('MO');
 }
 
 function deselect() {
   document.querySelectorAll('.img-card').forEach(c => c.classList.remove('selected'));
-  selectedIdx = null; selectedBitmap = null;
+  selectedIdx = null;
   const panel = document.getElementById('dlPanel');
   if (panel) { panel.classList.remove('show'); panel.innerHTML = ''; }
-}
-
-// ── Draw Cover (중앙 크롭, 고화질) ───────────────────
-function drawCover(ctx, src, w, h) {
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-
-  const iw = src.naturalWidth || src.width;
-  const ih = src.naturalHeight || src.height;
-  const srcRatio = iw / ih;
-  const dstRatio = w / h;
-
-  let sx, sy, sw, sh;
-  if (srcRatio > dstRatio) {
-    // 원본이 더 가로형 → 좌우 크롭
-    sh = ih;
-    sw = ih * dstRatio;
-    sx = (iw - sw) / 2;
-    sy = 0;
-  } else {
-    // 원본이 더 세로형 → 상하 크롭
-    sw = iw;
-    sh = iw / dstRatio;
-    sx = 0;
-    sy = (ih - sh) / 2;
-  }
-
-  ctx.fillStyle = '#F3F4F6';
-  ctx.fillRect(0, 0, w, h);
-  ctx.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
-}
-
-// ── Image Loader (원본 고화질, blob 방식) ────────────
-async function loadImageForCanvas(originalUrl) {
-  // proxy로 fetch → blob URL → img 로드
-  // blob URL은 same-origin 취급이라 canvas에 taint 없이 그려짐
-  const proxies = [
-    `https://corsproxy.io/?${encodeURIComponent(originalUrl)}`,
-    `https://api.allorigins.win/raw?url=${encodeURIComponent(originalUrl)}`,
-  ];
-
-  for (const proxyUrl of proxies) {
-    try {
-      const res = await fetch(proxyUrl);
-      if (!res.ok) continue;
-      const blob = await res.blob();
-      if (!blob.type.startsWith('image/')) continue;
-      const blobUrl = URL.createObjectURL(blob);
-      const img = await loadImg(blobUrl);
-      URL.revokeObjectURL(blobUrl);
-      return img;
-    } catch {}
-  }
-
-  // 최후 수단: crossOrigin 직접 로드
-  try { return await loadImg(originalUrl, true); } catch {}
-
-  throw new Error('이미지를 불러올 수 없습니다');
-}
-
-function loadImg(src, cors = false) {
-  return new Promise((res, rej) => {
-    const img = new Image();
-    if (cors) img.crossOrigin = 'anonymous';
-    img.onload = () => res(img);
-    img.onerror = rej;
-    img.src = src;
-  });
 }
 
 // ── UI Helpers ────────────────────────────────────────
