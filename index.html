@@ -300,7 +300,8 @@ async function doSearch() {
 
 // ── DuckDuckGo Image Search (CORS proxy) ────────────
 async function searchImages(query) {
-  const q = `${query} hotel`;
+  const sites = 'site:booking.com OR site:expedia.com OR site:agoda.com OR site:trip.com OR site:hotelscombined.com';
+  const q = `${query} hotel ${sites}`;
   const proxy = url => `https://corsproxy.io/?${encodeURIComponent(url)}`;
 
   // Step 1: get vqd token
@@ -313,7 +314,7 @@ async function searchImages(query) {
 
   // Step 2: fetch image results — Tall layout filter
   const imgJson = await fetch(
-    proxy(`https://duckduckgo.com/i.js?q=${encodeURIComponent(q)}&o=json&vqd=${vqd}&f=,,,layout:Tall,,&p=1&s=0`)
+    proxy(`https://duckduckgo.com/i.js?q=${encodeURIComponent(q)}&o=json&vqd=${vqd}&f=,,,,,&p=1&s=0`)
   ).then(r => r.json());
 
   const items = (imgJson.results || []).map(r => ({
