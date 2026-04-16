@@ -298,58 +298,62 @@ async function doSearch() {
   }
 }
 
-// ── DuckDuckGo Image Search (CORS proxy) ────────────
+// ── Google Image Search (CORS proxy) ────────────────
 async function searchImages(query) {
-  const sites = 'site:booking.com OR site:expedia.com OR site:agoda.com OR site:trip.com OR site:hotelscombined.com';
-  const q = `${query} hotel ${sites}`;
   const proxy = url => `https://corsproxy.io/?${encodeURIComponent(url)}`;
 
-  // Step 1: get vqd token
+  // Google Images 우선
+  try {
+    const googleUrl = `https://www.google.com/search?q=${encodeURIComponent(query + ' 호텔')}&tbm=isch&hl=ko`;
+    const html = await fetch(proxy(googleUrl)).then(r => {
+      if (!r.ok) throw new Error('fetch failed');
+      return r.text();
+    });
+    const items = parseGoogleImages(html);
+    if (items.length >= 3) return items.slice(0, 15);
+  } catch {}
+
+  // Fallback: DuckDuckGo (필터 없음)
+  const q = `${query} hotel`;
   const initHtml = await fetch(proxy(`https://duckduckgo.com/?q=${encodeURIComponent(q)}&iax=images&ia=images`))
     .then(r => r.text());
-
   const vqdMatch = initHtml.match(/vqd=['"]?([0-9-]+)['"]?/);
   if (!vqdMatch) throw new Error('검색을 시작할 수 없습니다. 잠시 후 다시 시도해주세요.');
-  const vqd = vqdMatch[1];
-
-  // Step 2: fetch image results — Tall layout filter
   const imgJson = await fetch(
-    proxy(`https://duckduckgo.com/i.js?q=${encodeURIComponent(q)}&o=json&vqd=${vqd}&f=,,,,,&p=1&s=0`)
+    proxy(`https://duckduckgo.com/i.js?q=${encodeURIComponent(q)}&o=json&vqd=${vqdMatch[1]}&f=,,,,,&p=1&s=0`)
   ).then(r => r.json());
+  return (imgJson.results || []).slice(0, 15).map(r => ({
+    url: r.image, thumb: r.thumbnail,
+    w: r.width, h: r.height, title: r.title,
+    source: (() => { try { return new URL(r.url).hostname.replace('www.',''); } catch { return ''; }})()
+  }));
+}
 
-  const ALLOWED = ['booking.com', 'expedia.com', 'agoda.com', 'trip.com', 'hotelscombined.com'];
+function parseGoogleImages(html) {
+  const un = s => s.replace(/\\u[\dA-Fa-f]{4}/g, m => String.fromCharCode(parseInt(m.slice(2), 16)));
+  const all = re => [...html.matchAll(re)].map(m => un(m[1]));
 
-  const items = (imgJson.results || [])
-    .map(r => {
-      let host = '';
-      try { host = new URL(r.url).hostname.replace('www.', ''); } catch {}
-      return {
-        url:    r.image,
-        thumb:  r.thumbnail,
-        w:      r.width,
-        h:      r.height,
-        title:  r.title,
-        source: host,
-      };
-    })
-    .filter(r => ALLOWED.some(d => r.source.endsWith(d)));
+  const ouUrls = all(/"ou":"([^"]+)"/g);
+  const tuUrls = all(/"tu":"([^"]+)"/g);
+  const owVals = [...html.matchAll(/"ow":(\d+)/g)].map(m => +m[1]);
+  const ohVals = [...html.matchAll(/"oh":(\d+)/g)].map(m => +m[1]);
+  const stVals = all(/"st":"([^"]+)"/g);
+  const ptVals = all(/"pt":"([^"]+)"/g);
 
-  if (items.length === 0) throw new Error('허용된 사이트(Booking, Expedia, Agoda, Trip, HotelsCombined)에서 이미지를 찾지 못했습니다. 영문 호텔명으로 다시 시도해보세요.');
-
-  // 최소 해상도 필터 (단변 600px 이상) 후 픽셀 수 기준 내림차순
-  const quality = items.filter(r => Math.min(r.w, r.h) >= 600);
-  const sorted = (quality.length >= 5 ? quality : items)
-    .sort((a, b) => (b.w * b.h) - (a.w * a.h));
-  return sorted.slice(0, 10);
+  return ouUrls
+    .map((url, i) => ({
+      url, thumb: tuUrls[i] || url,
+      w: owVals[i] || 0, h: ohVals[i] || 0,
+      source: stVals[i] || '', title: ptVals[i] || '',
+    }))
+    .filter(item => item.url.startsWith('http'));
 }
 
 // ── Render Results ────────────────────────────────────
 function renderResults(query) {
-  const portraitCount = results.filter(r => r.h > r.w).length;
   let html = `
     <div class="results-meta">
       <strong>"${query}"</strong> 검색 결과 ${results.length}장
-      ${portraitCount > 0 ? `<span class="portrait-note">세로형 ${portraitCount}장 포함</span>` : ''}
     </div>
     <div class="image-grid" id="grid">`;
 
