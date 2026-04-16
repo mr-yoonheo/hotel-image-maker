@@ -52,17 +52,6 @@
     .search-btn:hover { background: var(--primary-dark); }
     .search-btn:disabled { background: #D1D5DB; cursor: not-allowed; }
 
-    /* ── Size Toggle ── */
-    .size-wrap { display: flex; gap: 6px; flex-shrink: 0; }
-    .size-btn {
-      border: 2px solid var(--border); background: #fff;
-      border-radius: 8px; padding: 7px 14px;
-      font-family: inherit; font-size: 12px; font-weight: 700;
-      cursor: pointer; color: var(--muted); transition: all .2s;
-      line-height: 1.3; text-align: center;
-    }
-    .size-btn.active { border-color: var(--primary); color: var(--primary); background: var(--primary-light); }
-    .size-btn small { font-weight: 400; opacity: .8; display: block; font-size: 10px; }
 
     /* ── Main ── */
     main { max-width: 1100px; margin: 0 auto; padding: 28px 24px; }
@@ -98,11 +87,6 @@
       display: flex; align-items: center; gap: 8px;
     }
     .results-meta strong { color: var(--text); }
-    .portrait-note {
-      background: #F0FDF4; border: 1px solid #BBF7D0;
-      border-radius: 20px; padding: 3px 10px;
-      font-size: 11px; color: #166534; font-weight: 600;
-    }
 
     .image-grid {
       display: grid;
@@ -129,15 +113,6 @@
       box-shadow: 0 2px 6px rgba(0,0,0,.2);
     }
     .img-card.selected .check { display: flex; }
-
-    /* Portrait badge */
-    .portrait-badge {
-      position: absolute; top: 8px; left: 8px; z-index: 2;
-      background: rgba(16,185,129,.9); color: #fff;
-      border-radius: 4px; font-size: 10px; font-weight: 700;
-      padding: 2px 6px; display: none;
-    }
-    .img-card.portrait .portrait-badge { display: block; }
 
     .img-thumb {
       width: 100%; aspect-ratio: 2/3; object-fit: cover;
@@ -230,7 +205,7 @@
 
 <header>
   <div class="header-inner">
-    <div class="logo">🏨 뚝딱이</div>
+    <div class="logo">🏨 핫딜 호텔 이미지 뚝딱이</div>
 
     <div class="search-wrap">
       <input class="search-input" id="searchInput" type="text"
@@ -241,15 +216,6 @@
         <span id="btnText">검색</span>
       </button>
     </div>
-
-    <div class="size-wrap">
-      <button class="size-btn active" id="btnPC" onclick="setSize('PC')">
-        🖥️ PC<small>724×1086</small>
-      </button>
-      <button class="size-btn" id="btnMO" onclick="setSize('MO')">
-        📱 MO<small>480×720</small>
-      </button>
-    </div>
   </div>
 </header>
 
@@ -258,7 +224,7 @@
   <div class="state-box" id="stateEmpty">
     <div class="ico">🏝️</div>
     <h3>호텔 이름을 검색해보세요</h3>
-    <p>세로형 호텔 이미지를 검색해서 바로 클릭하면<br>PC(724×1086) / MO(480×720) 배너로 자동 변환됩니다.</p>
+    <p>이미지를 클릭하면<br>PC(724×1086) / MO(480×720) 배너 규격으로 자동 크롭 & 다운로드</p>
   </div>
 </main>
 
@@ -266,18 +232,9 @@
 
 <script>
 const SIZES = { PC: { w: 724, h: 1086 }, MO: { w: 480, h: 720 } };
-let currentSize = 'PC';
 let results = [];
 let selectedIdx = null;
 let selectedBitmap = null;
-
-// ── Size Toggle ──────────────────────────────────────
-function setSize(s) {
-  currentSize = s;
-  document.getElementById('btnPC').classList.toggle('active', s === 'PC');
-  document.getElementById('btnMO').classList.toggle('active', s === 'MO');
-  if (selectedBitmap) renderPreview();
-}
 
 // ── Search ───────────────────────────────────────────
 async function doSearch() {
@@ -322,11 +279,13 @@ async function searchImages(query) {
   const imgJson = await fetch(
     proxy(`https://duckduckgo.com/i.js?q=${encodeURIComponent(q)}&o=json&vqd=${vqdMatch[1]}&f=,,,,,&p=1&s=0`)
   ).then(r => r.json());
-  return (imgJson.results || []).slice(0, 15).map(r => ({
+  const ddgItems = (imgJson.results || []).map(r => ({
     url: r.image, thumb: r.thumbnail,
     w: r.width, h: r.height, title: r.title,
     source: (() => { try { return new URL(r.url).hostname.replace('www.',''); } catch { return ''; }})()
   }));
+  const ddgHq = ddgItems.filter(r => Math.min(r.w, r.h) >= 800);
+  return (ddgHq.length >= 5 ? ddgHq : ddgItems.filter(r => Math.min(r.w, r.h) >= 500)).slice(0, 15);
 }
 
 function parseGoogleImages(html) {
@@ -340,13 +299,17 @@ function parseGoogleImages(html) {
   const stVals = all(/"st":"([^"]+)"/g);
   const ptVals = all(/"pt":"([^"]+)"/g);
 
-  return ouUrls
+  const all_items = ouUrls
     .map((url, i) => ({
       url, thumb: tuUrls[i] || url,
       w: owVals[i] || 0, h: ohVals[i] || 0,
       source: stVals[i] || '', title: ptVals[i] || '',
     }))
     .filter(item => item.url.startsWith('http'));
+
+  // 화질 필터: 단변 800px 이상 우선, 부족하면 500px 이상으로 완화
+  const hq = all_items.filter(r => Math.min(r.w, r.h) >= 800);
+  return (hq.length >= 5 ? hq : all_items.filter(r => Math.min(r.w, r.h) >= 500));
 }
 
 // ── Render Results ────────────────────────────────────
@@ -358,11 +321,9 @@ function renderResults(query) {
     <div class="image-grid" id="grid">`;
 
   results.forEach((r, i) => {
-    const isPortrait = r.h > r.w;
     html += `
-      <div class="img-card${isPortrait ? ' portrait' : ''}" id="card${i}" onclick="selectImage(${i})">
+      <div class="img-card" id="card${i}" onclick="selectImage(${i})">
         <div class="check">✓</div>
-        <div class="portrait-badge">세로✓</div>
         <img class="img-thumb" src="${r.thumb}" alt="${r.title}"
           onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"
           loading="lazy" />
@@ -407,13 +368,12 @@ async function selectImage(idx) {
 
 function renderDownloadPanel(item) {
   const panel = document.getElementById('dlPanel');
-  const { w, h } = SIZES[currentSize];
-  const ph = 280, pw = Math.round(w / h * ph);
+  const ph = 280, pw = Math.round(724 / 1086 * ph);
 
   panel.innerHTML = `
     <div class="dl-inner">
       <div class="dl-preview">
-        <div class="canvas-label">${currentSize} 미리보기</div>
+        <div class="canvas-label">PC 배너 미리보기 (크롭)</div>
         <canvas id="previewCanvas" width="${pw}" height="${ph}"></canvas>
       </div>
       <div class="dl-info">
@@ -438,8 +398,7 @@ function renderDownloadPanel(item) {
 function renderPreview() {
   const canvas = document.getElementById('previewCanvas');
   if (!canvas || !selectedBitmap) return;
-  const { w, h } = SIZES[currentSize];
-  const ph = 280, pw = Math.round(w / h * ph);
+  const ph = 280, pw = Math.round(724 / 1086 * ph);
   canvas.width = pw; canvas.height = ph;
   drawCover(canvas.getContext('2d'), selectedBitmap, pw, ph);
 }
@@ -477,15 +436,34 @@ function deselect() {
   if (panel) { panel.classList.remove('show'); panel.innerHTML = ''; }
 }
 
-// ── Draw Cover ────────────────────────────────────────
+// ── Draw Cover (중앙 크롭, 고화질) ───────────────────
 function drawCover(ctx, src, w, h) {
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
   const iw = src.naturalWidth || src.width;
   const ih = src.naturalHeight || src.height;
-  const scale = Math.max(w/iw, h/ih);
-  const sw = iw*scale, sh = ih*scale;
+  const srcRatio = iw / ih;
+  const dstRatio = w / h;
+
+  let sx, sy, sw, sh;
+  if (srcRatio > dstRatio) {
+    // 원본이 더 가로형 → 좌우 크롭
+    sh = ih;
+    sw = ih * dstRatio;
+    sx = (iw - sw) / 2;
+    sy = 0;
+  } else {
+    // 원본이 더 세로형 → 상하 크롭
+    sw = iw;
+    sh = iw / dstRatio;
+    sx = 0;
+    sy = (ih - sh) / 2;
+  }
+
   ctx.fillStyle = '#F3F4F6';
   ctx.fillRect(0, 0, w, h);
-  ctx.drawImage(src, (w-sw)/2, (h-sh)/2, sw, sh);
+  ctx.drawImage(src, sx, sy, sw, sh, 0, 0, w, h);
 }
 
 // ── Image Loader (CORS-safe) ──────────────────────────
