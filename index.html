@@ -277,10 +277,11 @@ function renderResults(query) {
               <button class="ratio-tab" id="tabMO" onclick="setCropRatio('MO')">📱 MO 비율<small>480 × 720</small></button>
             </div>
             <div class="dl-btns">
-              <button class="btn-pc" onclick="doDownload('PC')">🖥️ PC 배너 저장 <span class="badge">724 × 1086 px</span></button>
-              <button class="btn-mo" onclick="doDownload('MO')">📱 MO 배너 저장 <span class="badge">480 × 720 px</span></button>
+              <button class="btn-pc" onclick="doDownload('PC')">🖥️ PC 배너 저장 <span class="badge">724 × 1086 · PNG</span></button>
+              <button class="btn-mo" onclick="doDownload('MO')">📱 MO 배너 저장 <span class="badge">480 × 720 · PNG</span></button>
               <button class="btn-both" onclick="doDownloadBoth()">⬇️ PC + MO 모두 저장</button>
             </div>
+            <p style="font-size:11px;color:var(--muted);margin-top:10px;">💡 PNG(무손실) 포맷으로 저장됩니다. 화질 손실 없음.</p>
             <button class="btn-reupload" onclick="resetCrop()">↩ 다른 이미지 업로드</button>
           </div>
         </div>
@@ -496,25 +497,55 @@ function setCropRatio(r) {
 }
 
 // ── 다운로드 (원본 파일 기준 → 화질 완벽) ────────────
+// ── 단계적 축소 (Step-down resize) ───────────────────
+// 한 번에 크게 줄이면 계단 현상 발생 → 50%씩 단계적으로 줄임
+function stepDownCrop(img, sx, sy, sw, sh, targetW, targetH) {
+  // 1단계: 크롭 영역만 임시 캔버스에 추출
+  let c = document.createElement('canvas');
+  c.width = sw; c.height = sh;
+  let ctx = c.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, sw, sh);
+
+  // 2단계: 목표 크기의 2배보다 클 동안 50%씩 줄임
+  while (c.width / 2 > targetW || c.height / 2 > targetH) {
+    const nw = Math.max(Math.floor(c.width  / 2), targetW);
+    const nh = Math.max(Math.floor(c.height / 2), targetH);
+    const tmp = document.createElement('canvas');
+    tmp.width = nw; tmp.height = nh;
+    const tc = tmp.getContext('2d');
+    tc.imageSmoothingEnabled = true;
+    tc.imageSmoothingQuality = 'high';
+    tc.drawImage(c, 0, 0, nw, nh);
+    c = tmp; ctx = tc;
+  }
+
+  // 3단계: 정확한 목표 크기로 최종 렌더
+  const final = document.createElement('canvas');
+  final.width = targetW; final.height = targetH;
+  const fc = final.getContext('2d');
+  fc.imageSmoothingEnabled = true;
+  fc.imageSmoothingQuality = 'high';
+  fc.drawImage(c, 0, 0, targetW, targetH);
+  return final;
+}
+
 function doDownload(size) {
   if (!cropImg) return;
   const { w, h } = SIZES[size];
-  const c = document.createElement('canvas');
-  c.width = w; c.height = h;
-  const ctx = c.getContext('2d');
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(cropImg, crop.x, crop.y, crop.w, crop.h, 0, 0, w, h);
-  c.toBlob(blob => {
+  // 고화질 step-down 크롭
+  const final = stepDownCrop(cropImg, crop.x, crop.y, crop.w, crop.h, w, h);
+  final.toBlob(blob => {
     const hotel = (document.getElementById('searchInput').value || cropFileName).replace(/\s+/g,'_');
     const a = Object.assign(document.createElement('a'), {
       href: URL.createObjectURL(blob),
-      download: `${hotel}_${size}_${w}x${h}.jpg`
+      download: `${hotel}_${size}_${w}x${h}.png`  // PNG: 무손실
     });
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(a.href);
-    toast(`✅ ${size} (${w}×${h}) 저장 완료!`);
-  }, 'image/jpeg', 0.95);
+    toast(`✅ ${size} (${w}×${h}) PNG 저장 완료!`);
+  }, 'image/png');  // 무손실 포맷
 }
 
 async function doDownloadBoth() {
