@@ -526,12 +526,12 @@ function drawCropEditor() {
 function getCropCanvas() { return document.getElementById('cropCanvas'); }
 
 function onMouseDown(e) {
-  const {mx,my} = getMouse(e, getCropCanvas());
+  const {mx,my} = getMouse(e, getCropCanvas(), dScale);
   if (inCrop(mx,my)) { drag={on:true,sx:mx,sy:my,cx:crop.x,cy:crop.y}; getCropCanvas().classList.add('dragging'); }
 }
 function onMouseMove(e) {
   const c = getCropCanvas(); if (!c) return;
-  const {mx,my} = getMouse(e,c);
+  const {mx,my} = getMouse(e, c, dScale);
   c.style.cursor = inCrop(mx,my) ? 'grab' : 'default';
   if (!drag.on) return;
   c.style.cursor = 'grabbing';
@@ -561,8 +561,8 @@ document.addEventListener('touchstart', e => { if(e.target.id==='cropCanvas') on
 document.addEventListener('touchmove',  e => { if(cropImg) onTouchMove(e); }, {passive:false});
 document.addEventListener('touchend',   onMouseUp);
 
-function getMouse(e, c) { const r=c.getBoundingClientRect(); return {mx:(e.clientX-r.left)/dScale, my:(e.clientY-r.top)/dScale}; }
-function getTouch(t, c) { const r=c.getBoundingClientRect(); return {mx:(t.clientX-r.left)/dScale, my:(t.clientY-r.top)/dScale}; }
+function getMouse(e, c, scale) { scale = scale || dScale; const r=c.getBoundingClientRect(); return {mx:(e.clientX-r.left)/scale, my:(e.clientY-r.top)/scale}; }
+function getTouch(t, c, scale) { scale = scale || dScale; const r=c.getBoundingClientRect(); return {mx:(t.clientX-r.left)/scale, my:(t.clientY-r.top)/scale}; }
 function inCrop(mx,my) { return mx>=crop.x && mx<=crop.x+crop.w && my>=crop.y && my<=crop.y+crop.h; }
 function clamp(v,a,b)  { return Math.max(a,Math.min(b,v)); }
 
@@ -747,7 +747,7 @@ function drawDirectCropEditor() {
 // 직접 업로드 캔버스 드래그
 document.addEventListener('mousedown', e => {
   if (e.target.id === 'directCropCanvas' && dCropImg) {
-    const {mx,my} = getMouse(e, e.target);
+    const {mx,my} = getMouse(e, e.target, dDScale);
     if (mx>=dCrop.x && mx<=dCrop.x+dCrop.w && my>=dCrop.y && my<=dCrop.y+dCrop.h) {
       dDrag = {on:true, sx:mx, sy:my, cx:dCrop.x, cy:dCrop.y};
       e.target.style.cursor = 'grabbing';
@@ -757,7 +757,7 @@ document.addEventListener('mousedown', e => {
 document.addEventListener('mousemove', e => {
   if (!dDrag.on || !dCropImg) return;
   const c = document.getElementById('directCropCanvas'); if (!c) return;
-  const {mx,my} = getMouse(e, c);
+  const {mx,my} = getMouse(e, c, dDScale);
   dCrop.x = clamp(dDrag.cx+(mx-dDrag.sx), 0, dCropImg.width -dCrop.w);
   dCrop.y = clamp(dDrag.cy+(my-dDrag.sy), 0, dCropImg.height-dCrop.h);
   drawDirectCropEditor();
