@@ -113,6 +113,29 @@
     .btn-reupload { background: none; border: 1px solid var(--border); border-radius: 8px; padding: 7px 14px; font-family: inherit; font-size: 12px; color: var(--muted); cursor: pointer; margin-top: 12px; width: 100%; transition: all .2s; }
     .btn-reupload:hover { border-color: #EF4444; color: #EF4444; }
 
+    /* ── Direct Upload Section (첫 화면) ── */
+    .divider { display: flex; align-items: center; gap: 14px; margin: 28px 0; }
+    .divider span { font-size: 13px; color: var(--muted); white-space: nowrap; font-weight: 600; }
+    .divider::before, .divider::after { content:''; flex:1; height:1px; background: var(--border); }
+
+    .direct-card { background: #fff; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,.06); overflow: hidden; }
+    .direct-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 10px; }
+    .direct-header h3 { font-size: 15px; font-weight: 800; }
+    .direct-header p { font-size: 13px; color: var(--muted); margin-left: auto; }
+
+    .direct-drop { border: 2.5px dashed var(--border); border-radius: 12px; margin: 20px; padding: 40px 20px; text-align: center; cursor: pointer; transition: all .2s; position: relative; background: #FAFBFC; }
+    .direct-drop:hover, .direct-drop.over { border-color: var(--primary); background: var(--primary-light); }
+    .direct-drop input { position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%; }
+    .direct-drop .d-icon { font-size: 48px; margin-bottom: 12px; }
+    .direct-drop h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; }
+    .direct-drop p { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .direct-chips { display: flex; justify-content: center; gap: 8px; margin-top: 14px; flex-wrap: wrap; }
+    .direct-chip { background: #fff; border: 1px solid var(--border); border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600; color: var(--muted); }
+
+    /* Direct crop panel */
+    .direct-crop { padding: 24px; display: none; border-top: 1px solid var(--border); }
+    .direct-crop.show { display: block; }
+
     /* Toast */
     .toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; background: #1A1A2E; color: #fff; border-radius: 10px; padding: 12px 20px; font-size: 13px; font-weight: 500; transform: translateY(80px); opacity: 0; transition: all .3s; }
     .toast.show { transform: translateY(0); opacity: 1; }
@@ -134,11 +157,67 @@
   </div>
 </header>
 
-<main id="main">
-  <div class="state-box">
-    <div class="ico">🏝️</div>
-    <h3>호텔 이름을 검색해보세요</h3>
-    <p>검색 → 마음에 드는 이미지 클릭 → 원본 저장 후 업로드<br>PC(724×1086) / MO(480×720) 배너를 고화질로 만들어드립니다.</p>
+<main>
+  <!-- 검색 결과 영역 -->
+  <div id="main">
+    <div class="state-box">
+      <div class="ico">🔍</div>
+      <h3>호텔 이름을 검색해보세요</h3>
+      <p>검색 → 마음에 드는 이미지 클릭 → 원본 저장 후 업로드<br>PC(724×1086) / MO(480×720) 배너를 고화질로 만들어드립니다.</p>
+    </div>
+  </div>
+
+  <!-- 구분선 -->
+  <div class="divider"><span>또는 이미지를 바로 업로드</span></div>
+
+  <!-- 직접 업로드 섹션 -->
+  <div class="direct-card">
+    <div class="direct-header">
+      <span style="font-size:20px;">🖼️</span>
+      <h3>이미지 직접 업로드</h3>
+      <p>검색 없이 바로 크롭 & 다운로드</p>
+    </div>
+
+    <div class="direct-drop" id="directDrop"
+      ondragover="ev=>{ev.preventDefault();document.getElementById('directDrop').classList.add('over')}"
+      ondragleave="document.getElementById('directDrop').classList.remove('over')"
+      ondrop="handleDirectDrop(event)">
+      <input type="file" accept="image/*" onchange="handleDirectFile(event.target.files[0])"/>
+      <div class="d-icon">📂</div>
+      <h4>이미지를 여기에 드래그하거나 클릭해서 선택</h4>
+      <p>JPG · PNG · WEBP 지원 · ⌘V 붙여넣기도 가능</p>
+      <div class="direct-chips">
+        <span class="direct-chip">🖱️ 드래그 앤 드롭</span>
+        <span class="direct-chip">📁 파일 선택</span>
+        <span class="direct-chip">📋 ⌘V 붙여넣기</span>
+      </div>
+    </div>
+
+    <!-- 직접 업로드용 크롭 에디터 -->
+    <div class="direct-crop" id="directCrop">
+      <div class="step-label"><div class="step-num done">✓</div> 크롭 &amp; 다운로드</div>
+      <div class="crop-inner">
+        <div class="crop-canvas-wrap">
+          <div class="crop-hint-label">주황 영역 드래그로 위치 조정</div>
+          <canvas id="directCropCanvas"></canvas>
+        </div>
+        <div class="crop-right">
+          <h3>⬇️ 다운로드</h3>
+          <p class="sub" id="directCropSub"></p>
+          <div class="ratio-tabs">
+            <button class="ratio-tab active" id="dTabPC" onclick="setDirectRatio('PC')">🖥️ PC 비율<small>724 × 1086</small></button>
+            <button class="ratio-tab" id="dTabMO" onclick="setDirectRatio('MO')">📱 MO 비율<small>480 × 720</small></button>
+          </div>
+          <div class="dl-btns">
+            <button class="btn-pc" onclick="doDirectDownload('PC')">🖥️ PC 배너 저장 <span class="badge">724 × 1086 · PNG</span></button>
+            <button class="btn-mo" onclick="doDirectDownload('MO')">📱 MO 배너 저장 <span class="badge">480 × 720 · PNG</span></button>
+            <button class="btn-both" onclick="doDirectDownloadBoth()">⬇️ PC + MO 모두 저장</button>
+          </div>
+          <p style="font-size:11px;color:var(--muted);margin-top:10px;">💡 PNG(무손실) 포맷으로 저장됩니다.</p>
+          <button class="btn-reupload" onclick="resetDirectCrop()">↩ 다른 이미지 선택</button>
+        </div>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -149,13 +228,21 @@ const SIZES = { PC: { w: 724, h: 1086 }, MO: { w: 480, h: 720 } };
 let results = [];
 let selectedIdx = null;
 
-// 크롭 상태
+// 검색 후 크롭 상태
 let cropImg = null;
 let cropFileName = '호텔';
 let cropRatio = 'PC';
 let crop = { x: 0, y: 0, w: 0, h: 0 };
 let drag = { on: false, sx: 0, sy: 0, cx: 0, cy: 0 };
 let dScale = 1;
+
+// 직접 업로드 크롭 상태 (별도)
+let dCropImg = null;
+let dCropFileName = '호텔이미지';
+let dCropRatio = 'PC';
+let dCrop = { x: 0, y: 0, w: 0, h: 0 };
+let dDrag = { on: false, sx: 0, sy: 0, cx: 0, cy: 0 };
+let dDScale = 1;
 
 // ── 검색 ─────────────────────────────────────────────
 async function doSearch() {
@@ -289,7 +376,6 @@ function renderResults(query) {
 
     </div>`;
   setMain(html);
-  setupPaste();
 }
 
 // ── 이미지 선택 ──────────────────────────────────────
@@ -367,14 +453,6 @@ function loadCropImage(src) {
   i.src = src;
 }
 
-function setupPaste() {
-  document.onpaste = e => {
-    const items = e.clipboardData?.items || [];
-    for (const item of items) {
-      if (item.type.startsWith('image/')) { handleFile(item.getAsFile()); return; }
-    }
-  };
-}
 
 // ── 크롭 초기화 ──────────────────────────────────────
 function initCrop() {
@@ -569,7 +647,182 @@ function setBtnLoading(on) {
   document.getElementById('btnIcon').textContent = on ? '' : '🔍';
   document.getElementById('btnText').textContent = on ? '검색 중...' : '검색';
 }
-window.addEventListener('resize', () => { if(cropImg) drawCropEditor(); });
+window.addEventListener('resize', () => {
+  if (cropImg) drawCropEditor();
+  if (dCropImg) drawDirectCropEditor();
+});
+
+// ══ 직접 업로드 전용 함수 ════════════════════════════
+
+function handleDirectDrop(e) {
+  e.preventDefault();
+  document.getElementById('directDrop').classList.remove('over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) { handleDirectFile(file); return; }
+  const html = e.dataTransfer.getData('text/html');
+  const url  = e.dataTransfer.getData('text/uri-list') || e.dataTransfer.getData('text/plain');
+  if (html) { const m = html.match(/src=["']([^"']+)["']/); if (m) { loadDirectFromURL(m[1]); return; } }
+  if (url && url.startsWith('http')) loadDirectFromURL(url);
+}
+
+function handleDirectFile(file) {
+  if (!file || !file.type.startsWith('image/')) return;
+  dCropFileName = file.name.replace(/\.[^.]+$/, '');
+  const reader = new FileReader();
+  reader.onload = e => {
+    const i = new Image();
+    i.onload = () => { dCropImg = i; initDirectCrop(); showDirectCrop(); };
+    i.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function loadDirectFromURL(url) {
+  const i = new Image();
+  i.crossOrigin = 'anonymous';
+  i.onload = () => { dCropImg = i; dCropFileName = '호텔이미지'; initDirectCrop(); showDirectCrop(); };
+  i.onerror = () => toast('❌ 이미지 로드 실패');
+  i.src = url;
+}
+
+function initDirectCrop() {
+  const r = SIZES[dCropRatio].w / SIZES[dCropRatio].h;
+  if (dCropImg.width / dCropImg.height > r) {
+    dCrop.h = dCropImg.height;
+    dCrop.w = dCrop.h * r;
+  } else {
+    dCrop.w = dCropImg.width;
+    dCrop.h = dCrop.w / r;
+  }
+  dCrop.x = (dCropImg.width  - dCrop.w) / 2;
+  dCrop.y = (dCropImg.height - dCrop.h) / 2;
+}
+
+function showDirectCrop() {
+  document.getElementById('directCrop').classList.add('show');
+  document.getElementById('directCropSub').textContent =
+    `원본 ${dCropImg.width} × ${dCropImg.height}px → 크롭 후 배너 규격으로 고화질 저장`;
+  drawDirectCropEditor();
+  document.getElementById('directCrop').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+function drawDirectCropEditor() {
+  const canvas = document.getElementById('directCropCanvas');
+  if (!canvas || !dCropImg) return;
+  const wrap = canvas.closest('.crop-canvas-wrap');
+  const maxW = Math.min((wrap?.clientWidth || 400) - 32, 480);
+  const maxH = 400;
+  dDScale = Math.min(maxW / dCropImg.width, maxH / dCropImg.height, 1);
+  canvas.width  = Math.round(dCropImg.width  * dDScale);
+  canvas.height = Math.round(dCropImg.height * dDScale);
+  const ctx = canvas.getContext('2d');
+
+  ctx.drawImage(dCropImg, 0, 0, canvas.width, canvas.height);
+  ctx.fillStyle = 'rgba(0,0,0,0.55)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const dx = dCrop.x * dDScale, dy = dCrop.y * dDScale, dw = dCrop.w * dDScale, dh = dCrop.h * dDScale;
+  ctx.drawImage(dCropImg, dCrop.x, dCrop.y, dCrop.w, dCrop.h, dx, dy, dw, dh);
+
+  ctx.strokeStyle = '#FF6B35'; ctx.lineWidth = 2;
+  ctx.strokeRect(dx, dy, dw, dh);
+
+  ctx.strokeStyle = 'rgba(255,255,255,0.2)'; ctx.lineWidth = 1;
+  for (let i = 1; i <= 2; i++) {
+    ctx.beginPath(); ctx.moveTo(dx + dw*i/3, dy); ctx.lineTo(dx + dw*i/3, dy+dh); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(dx, dy + dh*i/3); ctx.lineTo(dx+dw, dy + dh*i/3); ctx.stroke();
+  }
+
+  ctx.fillStyle = '#FF6B35';
+  [[dx,dy],[dx+dw,dy],[dx,dy+dh],[dx+dw,dy+dh]].forEach(([x,y]) => {
+    ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+  });
+
+  ctx.fillStyle = 'rgba(255,107,53,0.9)';
+  ctx.fillRect(dx, Math.max(0, dy-22), 140, 20);
+  ctx.fillStyle = '#fff'; ctx.font = 'bold 11px sans-serif'; ctx.textAlign = 'left';
+  ctx.fillText(`  ${dCropRatio} ${SIZES[dCropRatio].w}×${SIZES[dCropRatio].h}`, dx+4, Math.max(13, dy-7));
+}
+
+// 직접 업로드 캔버스 드래그
+document.addEventListener('mousedown', e => {
+  if (e.target.id === 'directCropCanvas' && dCropImg) {
+    const {mx,my} = getMouse(e, e.target);
+    if (mx>=dCrop.x && mx<=dCrop.x+dCrop.w && my>=dCrop.y && my<=dCrop.y+dCrop.h) {
+      dDrag = {on:true, sx:mx, sy:my, cx:dCrop.x, cy:dCrop.y};
+      e.target.style.cursor = 'grabbing';
+    }
+  }
+});
+document.addEventListener('mousemove', e => {
+  if (!dDrag.on || !dCropImg) return;
+  const c = document.getElementById('directCropCanvas'); if (!c) return;
+  const {mx,my} = getMouse(e, c);
+  dCrop.x = clamp(dDrag.cx+(mx-dDrag.sx), 0, dCropImg.width -dCrop.w);
+  dCrop.y = clamp(dDrag.cy+(my-dDrag.sy), 0, dCropImg.height-dCrop.h);
+  drawDirectCropEditor();
+});
+document.addEventListener('mouseup', () => {
+  if (dDrag.on) {
+    dDrag.on = false;
+    const c = document.getElementById('directCropCanvas');
+    if (c) c.style.cursor = 'grab';
+  }
+});
+
+function setDirectRatio(r) {
+  dCropRatio = r;
+  document.getElementById('dTabPC').classList.toggle('active', r==='PC');
+  document.getElementById('dTabMO').classList.toggle('active', r==='MO');
+  if (dCropImg) { initDirectCrop(); drawDirectCropEditor(); }
+}
+
+function doDirectDownload(size) {
+  if (!dCropImg) return;
+  const { w, h } = SIZES[size];
+  const final = stepDownCrop(dCropImg, dCrop.x, dCrop.y, dCrop.w, dCrop.h, w, h);
+  final.toBlob(blob => {
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob),
+      download: `${dCropFileName}_${size}_${w}x${h}.png`
+    });
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(a.href);
+    toast(`✅ ${size} (${w}×${h}) PNG 저장 완료!`);
+  }, 'image/png');
+}
+
+async function doDirectDownloadBoth() {
+  doDirectDownload('PC');
+  await new Promise(r => setTimeout(r, 300));
+  doDirectDownload('MO');
+}
+
+function resetDirectCrop() {
+  dCropImg = null;
+  dCrop = { x:0, y:0, w:0, h:0 };
+  document.getElementById('directCrop').classList.remove('show');
+  const c = document.getElementById('directCropCanvas');
+  if (c) c.getContext('2d').clearRect(0,0,9999,9999);
+}
+
+// 클립보드 붙여넣기 — 직접 업로드 섹션 지원
+document.addEventListener('paste', e => {
+  // 이미 검색 후 크롭 패널이 활성화돼 있으면 기존 핸들러에 맡김
+  const items = e.clipboardData?.items || [];
+  for (const item of items) {
+    if (item.type.startsWith('image/')) {
+      // 검색 후 업로드 패널이 열려 있으면 거기로, 아니면 직접 업로드로
+      const actionPanel = document.getElementById('actionPanel');
+      if (actionPanel && actionPanel.classList.contains('show')) {
+        handleFile(item.getAsFile());
+      } else {
+        handleDirectFile(item.getAsFile());
+      }
+      return;
+    }
+  }
+});
 
 let _t;
 function toast(msg) {
